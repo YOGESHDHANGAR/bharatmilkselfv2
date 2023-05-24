@@ -9,9 +9,12 @@ const {
   weekWisePurchaseForSecondLastWeek,
   customerWisePurchaseForSecondLastWeek,
   customerWisePurchase,
+  getLatestPurchaseSerial,
 } = require("../controllers/purchaseController");
 
 const router = express.Router();
+
+router.route("/getlatestpurchaseserial").get(getLatestPurchaseSerial);
 
 router.route("/createpurchase").post(createPurchase);
 

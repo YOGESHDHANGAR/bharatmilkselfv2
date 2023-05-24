@@ -28,6 +28,9 @@ import {
   WEEK_WISE_PURCHASE_FAIL,
   WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_FAIL,
   CLEAR_ERRORS,
+  GET_LATEST_PURCHASE_SERIAL_REQUEST,
+  GET_LATEST_PURCHASE_SERIAL_SUCCESS,
+  GET_LATEST_PURCHASE_SERIAL_FAIL,
 } from "../constants/purchaseConstants";
 
 //Create Purchase
@@ -50,6 +53,29 @@ export const createPurchaseAction = (myForm) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: CREATE_PURCHASE_FAIL,
+      payload: error.response.data.message,
+    });
+  }
+};
+
+//Get latest purchase serial
+export const getLatestPurchaseSerialAction = () => async (dispatch) => {
+  try {
+    dispatch({
+      type: GET_LATEST_PURCHASE_SERIAL_REQUEST,
+    });
+
+    let link = `http://localhost:5000/api/v1/getlatestpurchaseserial`;
+
+    const { data } = await axios.get(link);
+
+    dispatch({
+      type: GET_LATEST_PURCHASE_SERIAL_SUCCESS,
+      payload: data,
+    });
+  } catch (error) {
+    dispatch({
+      type: GET_LATEST_PURCHASE_SERIAL_FAIL,
       payload: error.response.data.message,
     });
   }

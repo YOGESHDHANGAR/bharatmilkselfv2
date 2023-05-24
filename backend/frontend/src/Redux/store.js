@@ -6,6 +6,7 @@ import {
   customerWisePurchaseForSecondLastWeekReducer,
   customerWisePurchaseReducer,
   getAllPurchaseReducer,
+  getLatestPurchaseSerialReducer,
   weekWisePurchaseForSecondLastWeekReducer,
   weekWisePurchaseReducer,
 } from "./reducers/purchaseReducers";
@@ -28,6 +29,7 @@ import {
 
 const reducer = combineReducers({
   createpurchase: createPurchaseReducer,
+  getlatestpurchaseserial: getLatestPurchaseSerialReducer,
   allpurchases: getAllPurchaseReducer,
   weekwisepurchase: weekWisePurchaseReducer,
   weekwisepurchaseforsecondlastweek: weekWisePurchaseForSecondLastWeekReducer,

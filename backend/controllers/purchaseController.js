@@ -25,17 +25,13 @@ const handleRateAndAmount = async (milkQuantity, milkFat, milkClr) => {
 
     const fat_rate = getFatRateQueryResult[0].fat_rate;
 
-    console.log("fat_rate", fat_rate);
-
     let milkPossibleRate = milkNewFat * fat_rate;
-
-    console.log("milkPossibleRate", milkPossibleRate);
 
     let milkFinalRate =
       milkClr > 24 ? milkPossibleRate : milkPossibleRate - 1 * (25 - milkClr);
-    console.log("milkFinalRate", milkFinalRate);
 
     let checked_milk_rate = milkFinalRate.toFixed(2);
+
     let checked_milk_amount = (milkFinalRate * milkQuantity).toFixed(2);
 
     return {
@@ -43,9 +39,7 @@ const handleRateAndAmount = async (milkQuantity, milkFat, milkClr) => {
       checked_milk_amount,
     };
   } catch (err) {
-    // Handle any errors that occurred during the query
-    console.error(err);
-    throw new Error(err);
+    return new Error(err);
   }
 };
 
@@ -75,6 +69,19 @@ exports.createPurchase = async (req, res, next) => {
 
   let verifyNameAndIDQuery = `select customer_id from customer where customer_name = "${customer_name}"`;
 
+  const returnObject = {
+    purchase_serial,
+    purchase_date,
+    customer_id,
+    customer_name,
+    purchase_shift,
+    milk_type,
+    milk_quantity,
+    milk_fat,
+    milk_clr,
+    milk_rate,
+    milk_amount,
+  };
   con.query(`${verifyNameAndIDQuery}`, (err, verifyNameAndIDQueryResult) => {
     if (err) {
       return next(new ErrorHandler(err.sqlMessage, 500));
@@ -89,10 +96,22 @@ exports.createPurchase = async (req, res, next) => {
           if (err) {
             return next(new ErrorHandler(err.sqlMessage, 500));
           } else {
-            res.send(createpurchase);
+            res.send({ createpurchase, returnObject });
           }
         });
       }
+    }
+  });
+};
+
+exports.getLatestPurchaseSerial = (req, res, next) => {
+  let defaultQuerry = `select max(purchase_serial) as lastEntry from purchase`;
+
+  con.query(`${defaultQuerry}`, (err, getlatestpurchaseserialResult) => {
+    if (err) {
+      return next(new ErrorHandler(err.sqlMessage, 500));
+    } else {
+      res.send(getlatestpurchaseserialResult);
     }
   });
 };
@@ -325,6 +344,20 @@ exports.updatePurchase = async (req, res, next) => {
   milk_rate = checked_milk_rate;
   milk_amount = checked_milk_amount;
 
+  const returnObject = {
+    purchase_serial,
+    purchase_date,
+    customer_id,
+    customer_name,
+    purchase_shift,
+    milk_type,
+    milk_quantity,
+    milk_fat,
+    milk_clr,
+    milk_rate,
+    milk_amount,
+  };
+
   let defaultQuerry = `update purchase SET purchase_date = "${purchase_date}",customer_id = ${customer_id} , customer_name= "${customer_name}", purchase_shift="${purchase_shift}", milk_type="${milk_type}", milk_quantity=${milk_quantity}, milk_fat=${milk_fat}, milk_clr=${milk_clr}, milk_rate=${milk_rate}, milk_amount=${milk_amount}  WHERE purchase_serial = ${purchase_serial} `;
   let fetchUpdatedEntryQuery = `select * from purchase where purchase_serial = ${purchase_serial}`;
 
@@ -338,11 +371,11 @@ exports.updatePurchase = async (req, res, next) => {
           if (err) {
             return next(new ErrorHandler(err.sqlMessage, 500));
           } else {
-            console.log(
-              "fetchUpdatedEntryQueryResult",
-              fetchUpdatedEntryQueryResult
-            );
-            res.send({ updatepurchase, fetchUpdatedEntryQueryResult });
+            res.send({
+              updatepurchase,
+              returnObject,
+              fetchUpdatedEntryQueryResult,
+            });
           }
         }
       );

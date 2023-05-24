@@ -27,6 +27,9 @@ import {
   UPDATE_PURCHASE_FAIL,
   DELETE_PURCHASE_FAIL,
   CLEAR_ERRORS,
+  GET_LATEST_PURCHASE_SERIAL_REQUEST,
+  GET_LATEST_PURCHASE_SERIAL_SUCCESS,
+  GET_LATEST_PURCHASE_SERIAL_FAIL,
 } from "../constants/purchaseConstants";
 
 export const createPurchaseReducer = (
@@ -44,7 +47,8 @@ export const createPurchaseReducer = (
       return {
         ...state,
         loading: false,
-        createpurchase: action.payload,
+        createpurchase: action.payload.createpurchase,
+        returnObject: action.payload.returnObject,
       };
     case CREATE_PURCHASE_FAIL:
       return {
@@ -57,6 +61,40 @@ export const createPurchaseReducer = (
         ...state,
         error: null,
       };
+    default:
+      return state;
+  }
+};
+
+export const getLatestPurchaseSerialReducer = (
+  state = { getlatestpurchaseserial: [] },
+  action
+) => {
+  switch (action.type) {
+    case GET_LATEST_PURCHASE_SERIAL_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case GET_LATEST_PURCHASE_SERIAL_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        getlatestpurchaseserial: action.payload[0].lastEntry,
+      };
+    case GET_LATEST_PURCHASE_SERIAL_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case CLEAR_ERRORS:
+      return {
+        ...state,
+        error: null,
+      };
+
     default:
       return state;
   }
@@ -145,6 +183,7 @@ export const updatePurchaseReducer = (
         ...state,
         loading: false,
         updatepurchase: action.payload.updatepurchase,
+        returnObject: action.payload.returnObject,
         fetchUpdatedEntryQueryResult:
           action.payload.fetchUpdatedEntryQueryResult,
       };

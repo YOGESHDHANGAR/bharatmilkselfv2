@@ -5,7 +5,7 @@ import {
   clearErrors,
   createPurchaseAction,
   deletePurchaseAction,
-  getAllPurchaseAction,
+  getLatestPurchaseSerialAction,
   singlePurchaseAction,
   updatePurchaseAction,
 } from "../../Redux/actions/purchaseActions";
@@ -24,29 +24,54 @@ const Purchaseentry = ({ modal_purchase_serial }) => {
   const inputRef = useRef(null);
   const dispatch = useDispatch();
 
+  const showDateOnceRightFormat = () => {
+    const currentDate = new Date();
+    const day = String(currentDate.getDate()).padStart(2, "0");
+    const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+    const year = currentDate.getFullYear();
+    const formattedDate = `${day}-${month}-${year}`;
+    return formattedDate;
+  };
+
   const {
-    allpurchases,
-    loading,
-    error: allpurchasesError,
-  } = useSelector((state) => state.allpurchases);
-  const { allcustomers, error: allcustomersError } = useSelector(
-    (state) => state.allcustomers
-  );
-  const { createpurchase, error: createpurchaseError } = useSelector(
-    (state) => state.createpurchase
-  );
+    getlatestpurchaseserial,
+    loading: getlatestpurchaseserialLoading,
+    error: getlatestpurchaseserialError,
+  } = useSelector((state) => state.getlatestpurchaseserial);
+
+  const {
+    allcustomers,
+    error: allcustomersError,
+    loading: allcustomersLoading,
+  } = useSelector((state) => state.allcustomers);
+
+  const {
+    createpurchase,
+    returnObject: createpurchaseReturnObject,
+    error: createpurchaseError,
+    loading: createpurchaseLoading,
+  } = useSelector((state) => state.createpurchase);
+
   const {
     singlepurchase,
     error: singlepurchaseError,
     loading: singlepurchaseLoading,
   } = useSelector((state) => state.singlepurchase);
 
-  const { updatepurchase, error: updatepurchaseError } = useSelector(
-    (state) => state.updatepurchase
-  );
-  const { deletepurchase, error: deletepurchaseError } = useSelector(
-    (state) => state.deletepurchase
-  );
+  const {
+    updatepurchase,
+
+    returnObject: updatepurchaseReturnObject,
+    error: updatepurchaseError,
+    loading: updatepurchaseLoading,
+  } = useSelector((state) => state.updatepurchase);
+
+  const {
+    deletepurchase,
+    error: deletepurchaseError,
+    loading: deletepurchaseLoading,
+  } = useSelector((state) => state.deletepurchase);
+
   const { getfatrate, error: getfatrateError } = useSelector(
     (state) => state.getfatrate
   );
@@ -65,6 +90,8 @@ const Purchaseentry = ({ modal_purchase_serial }) => {
   const [milkRate, setMilkRate] = useState(0);
   const [milkAmount, setMilkAmount] = useState(0);
   const [successBlink, setSuccessBlink] = useState(false);
+  const [showDateOnce, setShowDateOnce] = useState(true);
+  const [returnObjectState, setReturnObjectState] = useState({});
 
   const handleSerialNumber = (e) => {
     setPurchaseSerial(e.target.value);
@@ -157,6 +184,18 @@ const Purchaseentry = ({ modal_purchase_serial }) => {
     }
   };
 
+  const hardResetStates = () => {
+    setPurchaseSerial(getlatestpurchaseserial + 1);
+    setCustomerId(0);
+    setCustomerName("");
+    setMilkQuantity(0);
+    setMilkFat(0);
+    setMilkType("Buffalo");
+    setMilkClr(0);
+    setMilkRate(0);
+    setMilkAmount(0);
+  };
+
   const resetStates = () => {
     setCustomerId(0);
     setCustomerName("");
@@ -185,10 +224,16 @@ const Purchaseentry = ({ modal_purchase_serial }) => {
 
     if (!purchaseShift) {
       alert("Please Select Shift");
+    } else if (!milkQuantity) {
+      alert("Please Enter Quantity");
+    } else if (!milkFat) {
+      alert("Please Enter Fat");
+    } else if (!milkClr) {
+      alert("Please Clr");
+    } else {
+      dispatch(createPurchaseAction(myForm));
+      resetStates();
     }
-
-    dispatch(createPurchaseAction(myForm));
-    resetStates();
   };
 
   const handleUpdate = (event) => {
@@ -206,13 +251,14 @@ const Purchaseentry = ({ modal_purchase_serial }) => {
     myForm.set("milk_clr", milkClr);
     myForm.set("milk_rate", milkRate);
     myForm.set("milk_amount", milkAmount);
+
     dispatch(updatePurchaseAction(purchaseSerial, myForm));
+    hardResetStates();
   };
 
   const handleDelete = () => {
     dispatch(deletePurchaseAction(purchaseSerial));
-    resetStates();
-    setPurchaseSerial(loading === false ? allpurchases[0].purchaseSerial : 0);
+    hardResetStates();
   };
 
   const hadleTabAfterSave = (e) => {
@@ -226,59 +272,68 @@ const Purchaseentry = ({ modal_purchase_serial }) => {
       dispatch(singlePurchaseAction(modal_purchase_serial));
       setPurchaseSerial(modal_purchase_serial);
     }
-  }, [dispatch]);
+  }, [singlepurchaseLoading, singlepurchase]);
 
   useEffect(() => {
-    dispatch(getAllPurchaseAction());
+    dispatch(getLatestPurchaseSerialAction());
     dispatch(getAllCustomerAction());
     dispatch(getFatRateAction());
   }, [dispatch]);
 
   useEffect(() => {
     if (!modal_purchase_serial) {
-      resetStates();
-      setPurchaseSerial(
-        loading === false ? allpurchases[0].purchase_serial + 1 : 0
-      );
+      getlatestpurchaseserialLoading === false
+        ? setPurchaseSerial(getlatestpurchaseserial + 1)
+        : 0;
     }
-  }, [dispatch, allpurchases]);
+  }, [getlatestpurchaseserialLoading]);
 
   useEffect(() => {
     if (
-      loading === false &&
+      createpurchaseLoading === false &&
       createpurchase &&
       createpurchase.affectedRows === 1
     ) {
       setSuccessBlink(true);
       setPurchaseSerial(Number(createpurchase.insertId) + 1);
+      setReturnObjectState(createpurchaseReturnObject);
     }
-  }, [loading, createpurchase]);
+  }, [createpurchaseLoading, createpurchase]);
 
   useEffect(() => {
     if (
-      loading === false &&
+      updatepurchaseLoading === false &&
       updatepurchase &&
       updatepurchase.affectedRows === 1
     ) {
       setSuccessBlink(true);
+      setReturnObjectState(updatepurchaseReturnObject);
+      setPurchaseSerial(getlatestpurchaseserial + 1);
     }
-  }, [loading, updatepurchase]);
+  }, [updatepurchaseLoading, getlatestpurchaseserialLoading, updatepurchase]);
 
   useEffect(() => {
     if (
-      loading === false &&
+      deletepurchaseLoading === false &&
       deletepurchase &&
       deletepurchase.affectedRows === 1
     ) {
       setSuccessBlink(true);
+      setReturnObjectState({});
     }
-  }, [loading, deletepurchase]);
+  }, [deletepurchaseLoading, deletepurchase]);
 
   useEffect(() => {
     setTimeout(() => {
       setSuccessBlink(false);
     }, 800);
-  }, [successBlink]);
+  });
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShowDateOnce(false);
+    }, 3000);
+  }, [showDateOnce]);
 
   useEffect(() => {
     if (singlepurchaseLoading === false && singlepurchase.length > 0) {
@@ -296,12 +351,13 @@ const Purchaseentry = ({ modal_purchase_serial }) => {
   }, [singlepurchase, singlepurchaseLoading]);
 
   useEffect(() => {
-    if (allcustomersError) {
-      showErrorToast(allcustomersError);
+    if (getlatestpurchaseserialError) {
+      showErrorToast(getlatestpurchaseserialError);
       dispatch(clearErrors());
     }
-    if (allpurchasesError) {
-      showErrorToast(allpurchasesError);
+
+    if (allcustomersError) {
+      showErrorToast(allcustomersError);
       dispatch(clearErrors());
     }
     if (createpurchaseError) {
@@ -326,8 +382,8 @@ const Purchaseentry = ({ modal_purchase_serial }) => {
     }
   }, [
     dispatch,
+    getlatestpurchaseserialError,
     allcustomersError,
-    allpurchasesError,
     createpurchaseError,
     singlepurchaseError,
     updatepurchaseError,
@@ -338,6 +394,52 @@ const Purchaseentry = ({ modal_purchase_serial }) => {
   return (
     <div>
       <MetaData title="Purchase_Entry" />
+      {showDateOnce === true && (
+        <div className="show_date_once">
+          <h1>Selected Date: {showDateOnceRightFormat()}</h1>
+        </div>
+      )}
+      {createpurchase.affectedRows === 1 && createpurchaseLoading === false && (
+        <div className="purchaseentry_showlastentry">
+          <div className="purchaseentry_showlastentry_topic">
+            <h3>Last Created Entry :</h3>
+          </div>
+          <div className="purchaseentry_showlastentry_content">
+            <h3>{returnObjectState.purchase_serial}</h3>
+            <h3>{returnObjectState.purchase_date}</h3>
+            <h3>{returnObjectState.customer_id}</h3>
+            <h3>{returnObjectState.customer_name}</h3>
+            <h3>{returnObjectState.purchase_shift}</h3>
+            <h3>{returnObjectState.milk_type}</h3>
+            <h3>{returnObjectState.milk_quantity}</h3>
+            <h3>{returnObjectState.milk_fat}</h3>
+            <h3>{returnObjectState.milk_clr}</h3>
+            <h3>{returnObjectState.milk_rate}</h3>
+            <h3>{returnObjectState.milk_amount}</h3>
+          </div>
+        </div>
+      )}
+      {updatepurchase.affectedRows === 1 && updatepurchaseLoading === false && (
+        <div className="purchaseentry_showlastentry">
+          <div className="purchaseentry_showlastentry_topic">
+            <h3>Last Updated Entry :</h3>
+          </div>
+          <div className="purchaseentry_showlastentry_content">
+            <h3>{returnObjectState.purchase_serial}</h3>
+            <h3>{returnObjectState.purchase_date}</h3>
+            <h3>{returnObjectState.customer_id}</h3>
+            <h3>{returnObjectState.customer_name}</h3>
+            <h3>{returnObjectState.purchase_shift}</h3>
+            <h3>{returnObjectState.milk_type}</h3>
+            <h3>{returnObjectState.milk_quantity}</h3>
+            <h3>{returnObjectState.milk_fat}</h3>
+            <h3>{returnObjectState.milk_clr}</h3>
+            <h3>{returnObjectState.milk_rate}</h3>
+            <h3>{returnObjectState.milk_amount}</h3>
+          </div>
+        </div>
+      )}
+
       <form className="purchaseentry_container" onSubmit={handleSave}>
         <div className="purchaseentry_serial_date_container">
           <label className="purchaseentry_serialno_lable">
@@ -371,7 +473,7 @@ const Purchaseentry = ({ modal_purchase_serial }) => {
               value={customerId}
               onChange={(e) => handleCustomerID(e)}
             >
-              {loading === false &&
+              {allcustomersLoading === false &&
                 allcustomers.map((elem, index) => {
                   return <Customecustomerid key={index} elem={elem} />;
                 })}
@@ -386,7 +488,7 @@ const Purchaseentry = ({ modal_purchase_serial }) => {
               value={customerName}
               onChange={(e) => handleCustomerName(e)}
             >
-              {loading === false &&
+              {allcustomersLoading === false &&
                 allcustomers.map((elem, index) => {
                   return <Customename key={index} elem={elem} />;
                 })}
@@ -503,17 +605,17 @@ const Purchaseentry = ({ modal_purchase_serial }) => {
             value="Save"
           />
           <input
-            tabIndex={13}
+            tabIndex={-1}
             className="update_input"
             type="button"
             value="Update"
             onClick={handleUpdate}
           />
           <input
-            tabIndex={14}
+            tabIndex={-1}
             className="refresh_input"
             type="button"
-            onClick={resetStates}
+            onClick={hardResetStates}
             value="Refresh"
           />
           <input
@@ -529,6 +631,7 @@ const Purchaseentry = ({ modal_purchase_serial }) => {
       <div tabIndex={-1} aria-disabled={true} className="success_fail_check">
         {successBlink && <h1 className="success_check">✔ Successfull</h1>}
       </div>
+
       <ToastContainer />
     </div>
   );

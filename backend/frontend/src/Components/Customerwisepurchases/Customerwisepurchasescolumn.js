@@ -82,13 +82,13 @@ const Customerwisepurchasescolumn = (props) => {
             onClick={handleDeleteEntry}
             value="Del"
           />
-          <input
+          {/* <input
             tabIndex={-1}
             className="customerwisepurchasescolumn_update_input"
             type="button"
             onClick={handleUpdateEntry}
             value="Upd"
-          />
+          /> */}
         </div>
       </div>
     </div>

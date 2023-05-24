@@ -1,0 +1,48 @@
+.header_container {
+  display: flex;
+  justify-content: space-around;
+  background-color: rgb(135, 167, 216);
+  color: white;
+  font-weight: 100;
+  padding-left: 20px;
+  position: sticky;
+  top: 0;
+}
+
+.header_sno_lable {
+  flex: 0.05;
+}
+
+.header_id_lable {
+  flex: 0.05;
+}
+
+.header_name_lable {
+  flex: 0.25;
+}
+
+.header_quantity_lable {
+  flex: 0.1;
+}
+
+.header_fat_lable {
+  flex: 0.1;
+}
+
+.header_rate_lable {
+  flex: 0.1;
+}
+
+.header_amount_lable {
+  flex: 0.1;
+}
+
+.header_last_week_amount_lable {
+  flex: 0.1;
+}
+
+
+.header_last_week_signature_lable {
+  margin-left: 20px;
+  flex: 0.15;
+}

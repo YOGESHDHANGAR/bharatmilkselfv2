@@ -1,0 +1,17 @@
+.weekpayment_totalling_Field {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 2px;
+  font-size: 1.1rem;
+}
+
+.weekpayment_totalMilk_Field {
+  width: 7.5%;
+  margin-left: 45vmax;
+}
+
+.weekpayment_total_Amount_Field {
+  width: 7.5%;
+  margin-right: 33.5vmax;
+}

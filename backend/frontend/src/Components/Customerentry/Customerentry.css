@@ -1,0 +1,114 @@
+.heading_and_form_container {
+  background-color: rgb(127, 148, 147);
+  color: white;
+  padding: 1vmax 0.5vmax;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  font-size: 1.3rem;
+}
+
+.customer_entry_container {
+  flex: 0.9;
+  display: flex;
+  justify-content: space-between;
+  padding: 1.8vmax 2.5vmax;
+  font-size: 1.1rem;
+  background-color: rgb(49, 66, 61);
+  border-radius: 3vmax;
+}
+
+.customer_entry_container {
+}
+
+.createcustomer_name_lable {
+  margin: 0 1vmax;
+}
+
+.register_input_container {
+  margin: 0 1vmax;
+}
+
+.customerentry_id_lable > input {
+  margin-left: 25px;
+  width: 5vmax;
+  height: 20px;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.createcustomer_name_lable > input {
+  margin-left: 25px;
+  width: 20vmax;
+  height: 20px;
+  font-size: 1.1rem;
+}
+
+.buttons_input_container > input {
+  width: 7vmax;
+  border-style: none;
+  height: 24px;
+  font-size: 1.1rem;
+  margin-left: 20px;
+}
+
+.buttons_input_container > input:hover {
+  background-color: black;
+  color: white;
+}
+
+.buttons_input_container > input:focus {
+  background-color: black;
+  color: white;
+}
+
+.success_fail_check {
+  text-align: center;
+}
+
+.success_check {
+  color: rgb(9, 162, 9);
+}
+
+.fail_check {
+  color: rgb(229, 22, 22);
+}
+
+.fat_rate_entry_container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 0.1;
+  background-color: rgb(49, 66, 61);
+  margin-left: 1vmax;
+  padding: 0.1vmax;
+  border-radius: 3vmax;
+  font-size: 1.2rem;
+}
+.fat_rate_input {
+  text-align: center;
+  font-size: 1.1rem;
+  width: 4vmax;
+  border-radius: 10px;
+  border-style: none;
+  margin: 2px;
+}
+
+.submit_fat_rate_input {
+  width: 6vmax;
+  margin: 5px;
+  font-size: 1.1rem;
+  border-radius: 10px;
+  border-style: none;
+}
+
+.submit_fat_rate_input:hover {
+  background-color: black;
+  color: white;
+}
+
+.submit_fat_rate_input:focus {
+  background-color: black;
+  color: white;
+}

@@ -1,0 +1,21 @@
+.allcustomers_header_container {
+  display: flex;
+  background-color: rgb(135, 167, 216);
+  color: white;
+  font-weight: 100;
+  position: sticky;
+  top: 0;
+}
+
+.allcustomers_header_count_lable {
+  flex: 0.3;
+  margin-left: 20vmax;
+}
+
+.allcustomers_header_id_lable {
+  flex: 0.3;
+}
+
+.allcustomers_header_name_lable {
+  flex: 0.6;
+}

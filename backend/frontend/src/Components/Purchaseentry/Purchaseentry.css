@@ -1,0 +1,153 @@
+.purchaseentry_container {
+  display: flex;
+  flex-direction: column;
+  width: 75vw;
+  margin: auto;
+  margin-top: 6vmax;
+  background-color: rgb(176, 117, 231);
+  border-radius: 30px;
+  padding: 50px;
+  color: white;
+  font-size: 1.1rem;
+}
+.purchaseentry_container > div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.purchaseentry_container > div > label {
+  margin: 1vmax;
+}
+
+.purchaseentry_container > div > select {
+  margin: 1vmax;
+}
+
+.purchaseentry_container > div > label > input {
+  width: 8vmax;
+  height: 1.3vmax;
+  font-size: 1.1rem;
+  padding-left: 7px;
+}
+
+.select_customerid {
+  width: 8.75vmax;
+  height: 1.7vmax;
+  font-size: 1.1rem;
+  padding-left: 7px;
+}
+
+.customerid_name_select {
+  width: 8.75vmax;
+  height: 1.7vmax;
+  font-size: 1.1rem;
+  padding-left: 7px;
+}
+
+.customer_name_select {
+  width: 20vmax;
+  height: 1.7vmax;
+  font-size: 1.1rem;
+  padding-left: 7px;
+}
+
+.customer_shift_select {
+  width: 8.75vmax;
+  height: 1.7vmax;
+  font-size: 1.1rem;
+  padding-left: 7px;
+}
+
+.customer_type_select {
+  width: 8.75vmax;
+  height: 1.7vmax;
+  font-size: 1.1rem;
+  padding-left: 7px;
+}
+
+.purchaseentry_serialno_lable > input {
+  margin-left: 40px;
+}
+
+.purchaseentry_customerid_lable > select {
+  margin-left: 18px;
+}
+
+.purchaseentry_customername_lable > select {
+  margin-left: 20px;
+}
+
+.purchaseentry_date_lable > input {
+  margin-left: 20px;
+  text-align: center;
+}
+
+.purchaseentry_shift_lable > select {
+  margin-left: 20px;
+}
+.morning {
+  color: white;
+  background-color: rgb(246, 127, 0);
+}
+
+.evening {
+  color: white;
+  background-color: rgb(146, 145, 145);
+}
+
+.purchaseentry_type_lable > select {
+  margin-left: 78px;
+}
+
+.purchaseentry_quantity_lable > input {
+  margin-left: 84px;
+  margin-right: 183px;
+}
+
+.purchaseentry_fat_lable > input {
+  margin-left: 20px;
+}
+
+.purchaseentry_clr_lable > input {
+  margin-left: 81px;
+}
+
+.purchaseentry_rate_lable > input {
+  margin-left: 112px;
+  margin-right: 148px;
+}
+
+.purchaseentry_amount_lable > input {
+  margin-left: 20px;
+}
+
+.purchaseentry_save_update_refresh_delete {
+  padding: 3vmax 8vmax;
+}
+
+.purchaseentry_save_update_refresh_delete > input {
+  font-size: 1.1rem;
+  width: 8vmax;
+  height: 2vmax;
+}
+
+.purchaseentry_save_update_refresh_delete > input:hover {
+  color: white;
+  background-color: black;
+}
+.purchaseentry_save_update_refresh_delete > input:focus {
+  color: white;
+  background-color: black;
+}
+
+.success_fail_check {
+  text-align: center;
+}
+
+.success_check {
+  color: rgb(9, 162, 9);
+}
+
+.fail_check {
+  color: rgb(229, 22, 22);
+}

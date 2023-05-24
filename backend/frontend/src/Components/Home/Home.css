@@ -1,0 +1,41 @@
+.no_result_found {
+  display: flex;
+  justify-content: center;
+  margin: 14vmax;
+  color: red;
+}
+
+.home_totalling_Field {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 2px;
+  font-size: 1.1rem;
+}
+
+.home_totalMilk_Field {
+  width: 7.5%;
+  margin-left: 60vmax;
+}
+
+.home_total_Amount_Field {
+  width: 7.5%;
+  margin-right: 1.8vmax;
+}
+
+body {
+  scrollbar-width: 0;
+  scrollbar-color: transparent transparent;
+}
+
+body::-webkit-scrollbar {
+  width: 0px;
+}
+
+body::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}

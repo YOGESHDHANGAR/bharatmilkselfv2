@@ -1,0 +1,70 @@
+.filter_container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  background-color: rgb(241, 132, 60);
+  color: white;
+  font-weight: 100;
+  padding: 15px 15px;
+}
+.customerid_lable > select {
+  border-style: none;
+  margin-left: 10px;
+  width: 5vmax;
+  height: 23px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.name_lable > select {
+  border-style: none;
+  margin-left: 10px;
+  width: 18vmax;
+  height: 25px;
+  font-size: 16px;
+}
+
+.fromdate_lable {
+  display: flex;
+}
+
+.fromdate_datepicker {
+  width: 9vmax;
+  text-align: center;
+  margin-left: 10px;
+  border-style: none;
+  height: 23px;
+  font-size: 16px;
+}
+
+.todate_lable {
+  display: flex;
+}
+
+.todate_datepicker {
+  width: 9vmax;
+  text-align: center;
+  margin-left: 10px;
+  border-style: none;
+  height: 23px;
+  font-size: 16px;
+}
+
+.shift_lable > select {
+  border-style: none;
+  margin-left: 10px;
+  width: 8vmax;
+  height: 23px;
+  font-size: 16px;
+}
+.submit_input {
+  border-style: none;
+  width: 8vmax;
+  height: 23px;
+  font-size: 16px;
+}
+
+.submit_input:hover {
+  color: white;
+  background-color: black;
+}

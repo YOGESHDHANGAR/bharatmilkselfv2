@@ -1,0 +1,57 @@
+.companyname_container {
+  background-color: rgb(33, 32, 32);
+  height: 10vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2vmax;
+}
+
+.companyname {
+  color: white;
+  font-weight: 500;
+  font-size: 2.5vmax;
+  text-decoration: none;
+}
+
+.navlinks {
+  font-size: 1.1rem;
+}
+
+.home_navlink {
+  color: white;
+  text-decoration: none;
+  margin: 10px;
+  font-weight: 500;
+}
+.home_navlink :hover {
+  font-size: large;
+}
+
+.weekpayment_navlink {
+  color: white;
+  text-decoration: none;
+  margin: 10px;
+  font-weight: 500;
+}
+
+.customerwise_navlink {
+  color: white;
+  text-decoration: none;
+  margin: 10px;
+  font-weight: 500;
+}
+
+.cutomerentry_navlink {
+  color: white;
+  text-decoration: none;
+  margin: 10px;
+  font-weight: 500;
+}
+
+.active {
+  font-size: 1.4vmax;
+  box-shadow: 0 0 3px 2px rgb(135, 167, 216);
+  border-radius: 5px;
+  padding: 2px;
+}

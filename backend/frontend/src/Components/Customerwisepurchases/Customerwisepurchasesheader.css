@@ -1,0 +1,63 @@
+.Customerwisepurchases_header_column_container {
+  display: flex;
+  background-color: rgb(135, 167, 216);
+  color: white;
+  font-weight: 100;
+  padding-left: 20px;
+}
+
+.Customerwisepurchases_header_Sno_lable {
+  flex: 0.08;
+}
+
+.Customerwisepurchases_header_entry_lable {
+  flex: 0.08;
+}
+
+.Customerwisepurchases_header_serial_lable {
+  flex: 0.15;
+}
+
+.Customerwisepurchases_header_date_lable {
+  flex: 0.18;
+}
+
+.Customerwisepurchases_header_id_lable {
+  flex: 0.1;
+}
+
+.Customerwisepurchases_header_name_lable {
+  flex: 0.45;
+}
+
+.Customerwisepurchases_header_shift_lable {
+  flex: 0.15;
+}
+
+.Customerwisepurchases_header_type_lable {
+  flex: 0.15;
+}
+
+.Customerwisepurchases_header_quantity_lable {
+  flex: 0.15;
+}
+
+.Customerwisepurchases_header_fat_lable {
+  flex: 0.15;
+}
+
+.Customerwisepurchases_header_rate_lable {
+  flex: 0.15;
+}
+
+.Customerwisepurchases_header_clr_lable {
+  flex: 0.1;
+}
+
+.Customerwisepurchases_header_amount_lable {
+  flex: 0.15;
+}
+
+.Customerwisepurchases_header_delete_button {
+  flex: 0.15;
+}

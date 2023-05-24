@@ -14,6 +14,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ReactDOM from "react-dom";
 import Purchaseentry from "../Purchaseentry/Purchaseentry";
+import MetaData from "../MetaData/MetaData";
 
 const ModalRoot = ({ children }) => {
   return ReactDOM.createPortal(
@@ -128,6 +129,7 @@ const Customerwisepurchases = React.memo(() => {
 
   return (
     <div>
+      <MetaData title="Customer_Wise" />
       <Cutomerwisepurchasesfilter />
       <Customerwisepurchasesheader />
       <div>

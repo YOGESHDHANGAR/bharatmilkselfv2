@@ -11,6 +11,7 @@ import Loading from "../Loading/Loading";
 import { getAllCustomerAction } from "../../Redux/actions/customerActions";
 import Header from "./Header";
 import Box from "@mui/material/Box";
+import MetaData from "../MetaData/MetaData";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -43,6 +44,7 @@ const Home = () => {
 
   return (
     <div>
+      <MetaData title="Home" />
       <Filter allcustomers={allcustomers} loading={loading} />
       <Header />
       {loading === true ? (

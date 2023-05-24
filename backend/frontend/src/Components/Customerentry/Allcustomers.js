@@ -5,6 +5,7 @@ import { clearErrors } from "../../Redux/actions/purchaseActions";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import MetaData from "../MetaData/MetaData";
 
 const Allcustomers = (props) => {
   const showErrorToast = (message) => {
@@ -24,6 +25,7 @@ const Allcustomers = (props) => {
   }, [dispatch, alert, allcustomersErorr]);
   return (
     <div>
+      <MetaData title="Customer_Entry" />
       <Allcustomersheader />
       {props.allcustomers.map((elem, index) => {
         return (

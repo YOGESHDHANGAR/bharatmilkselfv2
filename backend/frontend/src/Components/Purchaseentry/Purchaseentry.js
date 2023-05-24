@@ -13,6 +13,7 @@ import { getAllCustomerAction } from "../../Redux/actions/customerActions";
 import { getFatRateAction } from "../../Redux/actions/fatRateActions";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import MetaData from "../MetaData/MetaData";
 
 const Purchaseentry = ({ modal_purchase_serial }) => {
   const showErrorToast = (message) => {
@@ -336,6 +337,7 @@ const Purchaseentry = ({ modal_purchase_serial }) => {
 
   return (
     <div>
+      <MetaData title="Purchase_Entry" />
       <form className="purchaseentry_container" onSubmit={handleSave}>
         <div className="purchaseentry_serial_date_container">
           <label className="purchaseentry_serialno_lable">

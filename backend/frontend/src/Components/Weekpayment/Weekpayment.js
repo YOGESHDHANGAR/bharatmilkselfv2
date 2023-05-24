@@ -11,6 +11,7 @@ import {
 } from "../../Redux/actions/purchaseActions";
 import Box from "@mui/material/Box";
 import Loading from "../Loading/Loading";
+import MetaData from "../MetaData/MetaData";
 
 const Weekpayment = () => {
   const dispatch = useDispatch();
@@ -54,6 +55,7 @@ const Weekpayment = () => {
 
   return (
     <div>
+      <MetaData title="Week_Payment" />
       <Weekpaymentfilter />
       <Weekpaymentheader />
       {loading === true ? (

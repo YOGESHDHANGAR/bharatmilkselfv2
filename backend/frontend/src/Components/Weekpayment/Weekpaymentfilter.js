@@ -13,37 +13,16 @@ const Filter = () => {
   const [fromDate, setFromDate] = useState(lastWeekStartDate);
   const [toDate, setToDate] = useState(lastWeekEndDate);
 
-  const [fromDateformat, setFromdateformat] = useState("");
-  const [toDateformat, setToDateformat] = useState("");
-
   const handleFromDate = (e) => {
-    const getFromDateValue = e.target.value;
-    const setFromFormat = getFromDateValue.split("-");
-    const setFromYear = setFromFormat[0];
-    const setFromMonth = setFromFormat[1];
-    const setFromDate = setFromFormat[2];
-    const setFromFormatDate =
-      setFromYear + "" + setFromMonth + "" + setFromDate;
-    setFromDate(getFromDateValue);
-    setFromdateformat(setFromFormatDate);
+    setFromDate(e.target.value);
   };
 
   const handleToDate = (e) => {
-    const getToDateValue = e.target.value;
-    const setDateFormat = getToDateValue.split("-");
-    const setToYear = setDateFormat[0];
-    const setToMonth = setDateFormat[1];
-    const setToDate = setDateFormat[2];
-    const setToDateFormat = setToYear + "" + setToMonth + "" + setToDate;
-    setToDate(getToDateValue);
-    setToDateformat(setToDateFormat);
+    setToDate(e.target.value);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (fromDateformat > toDateformat) {
-      alert("Please select valid date");
-    }
     dispatch(weekWisePurchaseAction(1, fromDate, toDate));
   };
 

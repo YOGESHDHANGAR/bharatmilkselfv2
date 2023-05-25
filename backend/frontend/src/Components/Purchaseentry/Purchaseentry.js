@@ -282,7 +282,7 @@ const Purchaseentry = ({ modal_purchase_serial }) => {
 
   useEffect(() => {
     if (!modal_purchase_serial) {
-      getlatestpurchaseserialLoading === false
+      getlatestpurchaseserialLoading
         ? setPurchaseSerial(getlatestpurchaseserial + 1)
         : 0;
     }

@@ -95,6 +95,7 @@ const Filter = (props) => {
           value={customerId}
           onChange={handlecustomerId}
         >
+          <option>Select</option>
           {props.loading === false &&
             props.allcustomers.map((elem, index) => {
               return <CustomecustomerId key={index} elem={elem} />;
@@ -135,7 +136,6 @@ const Filter = (props) => {
           value={purchaseShift}
           onChange={handleShift}
         >
-          <option>Select</option>
           <option value="Both">Both</option>
           <option value="Morning">Morning</option>
           <option value="Evening">Evening</option>

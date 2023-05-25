@@ -15,7 +15,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MetaData from "../MetaData/MetaData";
 
-const Purchaseentry = ({ modal_purchase_serial }) => {
+const Purchaseentry = () => {
   const showErrorToast = (message) => {
     toast.error(message, {
       autoClose: 5000,
@@ -268,24 +268,15 @@ const Purchaseentry = ({ modal_purchase_serial }) => {
   };
 
   useEffect(() => {
-    if (modal_purchase_serial) {
-      dispatch(singlePurchaseAction(modal_purchase_serial));
-      setPurchaseSerial(modal_purchase_serial);
-    }
-  }, [singlepurchaseLoading, singlepurchase]);
-
-  useEffect(() => {
     dispatch(getLatestPurchaseSerialAction());
     dispatch(getAllCustomerAction());
     dispatch(getFatRateAction());
   }, [dispatch]);
 
   useEffect(() => {
-    if (!modal_purchase_serial) {
-      getlatestpurchaseserialLoading
-        ? setPurchaseSerial(getlatestpurchaseserial + 1)
-        : 0;
-    }
+    getlatestpurchaseserialLoading === false
+      ? setPurchaseSerial(getlatestpurchaseserial + 1)
+      : 0;
   }, [getlatestpurchaseserialLoading]);
 
   useEffect(() => {

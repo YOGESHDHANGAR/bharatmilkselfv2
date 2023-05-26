@@ -117,16 +117,18 @@ exports.getLatestPurchaseSerial = (req, res, next) => {
 };
 
 exports.getAllPurchases = (req, res, next) => {
-  let defaultQuerry = `select * from purchase order by purchase_serial desc limit 1000 `;
+  let defaultQuerry = `select * from purchase where purchase_active_or_not=1 order by purchase_serial desc limit 1000 `;
+  // let defaultQuerry = `select p.purchase_serial, p.purchase_date,  c.customer_id, c.customer_name , p.purchase_shift, p.milk_type, p.milk_fat, p.milk_clr, p.milk_rate, p.milk_quantity , p.milk_amount FROM customer c join purchase p on c.customer_id = p.customer_id order by p.purchase_serial desc limit 1000`;
+
   const customeridQuery = req.query.customer_id;
   const nameQuery = req.query.customer_name;
   const fromDateQuery = req.query.fromDate;
   const toDateQuery = req.query.toDate;
   const shiftQuery = req.query.purchase_shift;
 
-  let customeQuerry = "select * from purchase where";
-  let totalAmountQuery =
-    "select sum(milk_quantity) as requiredTotalMilkQuantity, sum(milk_amount) as requiredTotalMilkAmount from purchase where";
+  let customeQuerry = `select * from purchase where purchase_active_or_not=${1} and`;
+
+  let totalAmountQuery = `select sum(milk_quantity) as requiredTotalMilkQuantity, sum(milk_amount) as requiredTotalMilkAmount from purchase where purchase_active_or_not=${1} and`;
 
   if (customeridQuery) {
     customeQuerry = customeQuerry + ` customer_id=${customeridQuery} and `;
@@ -151,13 +153,11 @@ exports.getAllPurchases = (req, res, next) => {
     totalAmountQuery = totalAmountQuery + ` purchase_shift="${shiftQuery}" and`;
   }
 
-  if (customeQuerry.length > 28) {
+  if (customeQuerry.length > 57) {
     defaultQuerry = customeQuerry.slice(0, -4);
   }
 
-  if (totalAmountQuery.length >= 101) {
-    totalAmountQuery = totalAmountQuery.slice(0, -4);
-  }
+  totalAmountQuery = totalAmountQuery.slice(0, -4);
 
   con.query(`${defaultQuerry}`, (err, allpurchases) => {
     if (err) {
@@ -199,8 +199,8 @@ exports.weekWisePurchase = (req, res, next) => {
     toDate = toDateQuery;
   }
 
-  let defaultQuerry = `select customer_id, customer_name, round(sum(milk_quantity),2) as milkTotalQuantity, ROUND(SUM(milk_amount),2) as milkTotalAmount from purchase where purchase_date between "${fromDate}" and "${toDate}"  group by customer_id, customer_name order by customer_name`;
-  let totalAmountQuery = `select sum(milk_quantity) as weekTotalQuantity, sum(milk_amount) as weekTotalAmount from purchase  where purchase_date between "${fromDate}" and "${toDate}"`;
+  let defaultQuerry = `select customer_id, customer_name, round(sum(milk_quantity),2) as milkTotalQuantity, ROUND(SUM(milk_amount),2) as milkTotalAmount from purchase where purchase_active_or_not=${1} and purchase_date between "${fromDate}" and "${toDate}"  group by customer_id, customer_name order by customer_name`;
+  let totalAmountQuery = `select sum(milk_quantity) as weekTotalQuantity, sum(milk_amount) as weekTotalAmount from purchase  where purchase_active_or_not=${1} and purchase_date between "${fromDate}" and "${toDate}"`;
   con.query(`${defaultQuerry}`, (err, weekpayment) => {
     if (err) {
       return next(new ErrorHandler(err.sqlMessage, 500));
@@ -240,7 +240,7 @@ exports.weekWisePurchaseForSecondLastWeek = (req, res, next) => {
     purchase_shift = shiftQuery;
   }
 
-  let defaultQuerryfrosecondlastweek = `select customer_name, ROUND(SUM(milk_quantity),2) AS TotalQuantity, ROUND(AVG(milk_fat),2) AS Fat, ROUND(AVG(milk_rate),2) AS RATE, ROUND(SUM(milk_amount),2) AS TotalAmount FROM purchase WHERE purchase_date>="${fromDate}" AND purchase_date<="${toDate}" GROUP BY customer_name ORDER BY customer_name`;
+  let defaultQuerryfrosecondlastweek = `select customer_name, ROUND(SUM(milk_quantity),2) AS TotalQuantity, ROUND(AVG(milk_fat),2) AS Fat, ROUND(AVG(milk_rate),2) AS RATE, ROUND(SUM(milk_amount),2) AS TotalAmount FROM purchase WHERE purchase_active_or_not=${1} and purchase_date>="${fromDate}" AND purchase_date<="${toDate}" GROUP BY customer_name ORDER BY customer_name`;
 
   con.query(
     `${defaultQuerryfrosecondlastweek}`,
@@ -268,7 +268,7 @@ exports.customerWisePurchase = (req, res, next) => {
     toDate = toDateQuery;
   }
 
-  let defaultQuerry = `select * from purchase where purchase_date>="${fromDate}" and purchase_date<="${toDate}" order by customer_name asc, purchase_date asc, purchase_shift desc`;
+  let defaultQuerry = `select * from purchase where purchase_active_or_not=${1} and purchase_date>="${fromDate}" and purchase_date<="${toDate}" order by customer_name asc, purchase_date asc, purchase_shift desc`;
   // let defaultQuerry = `SELECT  * FROM ( SELECT * FROM purchase WHERE purchase_date BETWEEN "${fromDate}" AND "${toDate}" ORDER BY customer_id, name, Date, Shift ) AS subquery_alias order by name, Date, Shift`;
   con.query(`${defaultQuerry}`, (err, customerwisepurchase) => {
     if (err) {
@@ -294,7 +294,7 @@ exports.customerWisePurchaseForSecondLastWeek = (req, res, next) => {
     fromDate = fromDateQuery;
     toDate = toDateQuery;
   }
-  let defaultQuerryfrosecondlastweek = `select * from purchase where purchase_date>="${fromDate}" and purchase_Date<="${toDate}" order by customer_id, customer_name, purchase_date, purchase_shift`;
+  let defaultQuerryfrosecondlastweek = `select * from purchase where purchase_active_or_not=${1} and purchase_date>="${fromDate}" and purchase_date<="${toDate}" order by customer_id, customer_name, purchase_date, purchase_shift`;
 
   con.query(
     `${defaultQuerryfrosecondlastweek}`,
@@ -358,7 +358,7 @@ exports.updatePurchase = async (req, res, next) => {
     milk_amount,
   };
 
-  let defaultQuerry = `update purchase SET purchase_date = "${purchase_date}",customer_id = ${customer_id} , customer_name= "${customer_name}", purchase_shift="${purchase_shift}", milk_type="${milk_type}", milk_quantity=${milk_quantity}, milk_fat=${milk_fat}, milk_clr=${milk_clr}, milk_rate=${milk_rate}, milk_amount=${milk_amount}  WHERE purchase_serial = ${purchase_serial} `;
+  let defaultQuerry = `update purchase set purchase_date = "${purchase_date}",customer_id = ${customer_id} , customer_name= "${customer_name}", purchase_shift="${purchase_shift}", milk_type="${milk_type}", milk_quantity=${milk_quantity}, milk_fat=${milk_fat}, milk_clr=${milk_clr}, milk_rate=${milk_rate}, milk_amount=${milk_amount}  WHERE purchase_serial = ${purchase_serial} `;
   let fetchUpdatedEntryQuery = `select * from purchase where purchase_serial = ${purchase_serial}`;
 
   con.query(`${defaultQuerry}`, (err, updatepurchase) => {
@@ -386,7 +386,7 @@ exports.updatePurchase = async (req, res, next) => {
 exports.deletePurchase = (req, res, next) => {
   const purchase_serial = req.query.purchase_serial;
 
-  let defaultQuerry = `Delete from purchase where purchase_serial=${purchase_serial}`;
+  let defaultQuerry = `delete from purchase where purchase_serial=${purchase_serial}`;
 
   con.query(`${defaultQuerry}`, (err, deletepurchase) => {
     if (err) {

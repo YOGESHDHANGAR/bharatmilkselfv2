@@ -18,6 +18,8 @@ import { clearErrors } from "../../Redux/actions/purchaseActions";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+const unfiltered = true;
+
 const Customerentry = () => {
   const showErrorToast = (message) => {
     toast.error(message, {
@@ -117,7 +119,7 @@ const Customerentry = () => {
   };
 
   useEffect(() => {
-    dispatch(getAllCustomerAction());
+    dispatch(getAllCustomerAction(unfiltered));
     dispatch(getFatRateAction());
   }, [dispatch]);
 

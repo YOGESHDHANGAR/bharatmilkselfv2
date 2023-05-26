@@ -5,6 +5,7 @@ const {
   singleCustomer,
   updateCustomer,
   deleteCustomer,
+  customerActiceOrInactive,
 } = require("../controllers/customerController");
 const router = express.Router();
 
@@ -17,5 +18,7 @@ router.route("/singlecustomer").get(singleCustomer);
 router.route("/updatecustomer").put(updateCustomer);
 
 router.route("/deletecustomer").delete(deleteCustomer);
+
+router.route("/customeractiveorinactive").get(customerActiceOrInactive);
 
 module.exports = router;

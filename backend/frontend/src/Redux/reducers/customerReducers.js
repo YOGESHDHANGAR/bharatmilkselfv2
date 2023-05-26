@@ -8,6 +8,9 @@ import {
   GET_ALL_CUSTOMER_FAIL,
   GET_ALL_CUSTOMER_REQUEST,
   GET_ALL_CUSTOMER_SUCCESS,
+  SET_CUSTOMER_ACTIVE_OR_INACTIVE_FAIL,
+  SET_CUSTOMER_ACTIVE_OR_INACTIVE_REQUEST,
+  SET_CUSTOMER_ACTIVE_OR_INACTIVE_SUCESS,
   SINGLE_CUSTOMER_FAIL,
   SINGLE_CUSTOMER_REQUEST,
   SINGLE_CUSTOMER_SUCCESS,
@@ -165,6 +168,39 @@ export const deleteCustomerReducer = (
         deletecustomer: action.payload,
       };
     case DELETE_CUSTOMER_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case CLEAR_ERRORS:
+      return {
+        ...state,
+        error: null,
+      };
+
+    default:
+      return state;
+  }
+};
+
+export const setCustomerActiceOrInactiveReducer = (
+  state = { setCustomeracticeorinactive: [] },
+  action
+) => {
+  switch (action.type) {
+    case SET_CUSTOMER_ACTIVE_OR_INACTIVE_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+    case SET_CUSTOMER_ACTIVE_OR_INACTIVE_SUCESS:
+      return {
+        ...state,
+        loading: false,
+        setCustomeracticeorinactive: action.payload,
+      };
+    case SET_CUSTOMER_ACTIVE_OR_INACTIVE_FAIL:
       return {
         ...state,
         loading: false,

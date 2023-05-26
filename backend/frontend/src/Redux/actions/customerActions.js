@@ -9,6 +9,9 @@ import {
   GET_ALL_CUSTOMER_FAIL,
   GET_ALL_CUSTOMER_REQUEST,
   GET_ALL_CUSTOMER_SUCCESS,
+  SET_CUSTOMER_ACTIVE_OR_INACTIVE_FAIL,
+  SET_CUSTOMER_ACTIVE_OR_INACTIVE_REQUEST,
+  SET_CUSTOMER_ACTIVE_OR_INACTIVE_SUCESS,
   SINGLE_CUSTOMER_FAIL,
   SINGLE_CUSTOMER_REQUEST,
   SINGLE_CUSTOMER_SUCCESS,
@@ -44,13 +47,19 @@ export const createCustomerAction = (myForm) => async (dispatch) => {
 };
 
 //Get All Customer
-export const getAllCustomerAction = () => async (dispatch) => {
+export const getAllCustomerAction = (unfiltered) => async (dispatch) => {
   try {
     dispatch({
       type: GET_ALL_CUSTOMER_REQUEST,
     });
 
-    let link = `http://localhost:5000/api/v1/allcustomers`;
+    let link = `http://localhost:5000/api/v1/allcustomers?`;
+
+    if (unfiltered) {
+      link = link + `unfiltered=${unfiltered}&`;
+    }
+    link = link.slice(0, -1);
+
     const { data } = await axios.get(link);
 
     dispatch({
@@ -144,6 +153,42 @@ export const deleteCustomerAction = (customer_id) => async (dispatch) => {
     });
   }
 };
+
+//set customer active and inactive
+export const customerActiceOrInactiveAction =
+  (customer_id, new_customer_active_or_not) => async (dispatch) => {
+    try {
+      dispatch({
+        type: SET_CUSTOMER_ACTIVE_OR_INACTIVE_REQUEST,
+      });
+
+      let link = `http://localhost:5000/api/v1/customeractiveorinactive?`;
+
+      if (customer_id) {
+        link = link + `customer_id=${customer_id}&`;
+      }
+      if (
+        new_customer_active_or_not === 0 ||
+        new_customer_active_or_not === 1
+      ) {
+        link =
+          link + `new_customer_active_or_not=${new_customer_active_or_not}&`;
+      }
+
+      link = link.slice(0, -1);
+      const { data } = await axios.get(link);
+
+      dispatch({
+        type: SET_CUSTOMER_ACTIVE_OR_INACTIVE_SUCESS,
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: SET_CUSTOMER_ACTIVE_OR_INACTIVE_FAIL,
+        payload: error.response.data.message,
+      });
+    }
+  };
 
 // Clearing Errors
 export const clearErrors = () => async (dispatch) => {

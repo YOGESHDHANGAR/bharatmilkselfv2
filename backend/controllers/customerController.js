@@ -51,9 +51,15 @@ exports.singleCustomer = (req, res, next) => {
 exports.updateCustomer = (req, res, next) => {
   const customer_id = req.body.customer_id;
   const customer_name = req.body.customer_name;
-  let defaultQuerry = `update customer SET  customer_name= "${customer_name}" where customer_id = ${customer_id} `;
+  const trimmedName = customer_name.trim();
+  const formattedName = trimmedName.replace(/\s+/g, " ");
 
-  let updateCustomerNameInPurchase = `update purchase SET Name = "${customer_name}" where customer_id = ${customer_id}`;
+  if (formattedName.length < 1) {
+    return next(new ErrorHandler("Please Select Valid Customer Name", 500));
+  }
+  let defaultQuerry = `update customer SET  customer_name= "${formattedName}" where customer_id = ${customer_id} `;
+
+  let updateCustomerNameInPurchase = `update purchase SET customer_name = "${formattedName}" where customer_id = ${customer_id}`;
 
   con.query(`${defaultQuerry}`, (err, updatecustomer) => {
     if (err) {

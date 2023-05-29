@@ -106,6 +106,7 @@ exports.createPurchase = async (req, res, next) => {
 
 exports.getLatestPurchaseSerial = (req, res, next) => {
   let defaultQuerry = `select max(purchase_serial) as lastEntry from purchase`;
+  // let defaultQuerry = `select max(purchase_serial) as lastEntry from purchase_hub`;
 
   con.query(`${defaultQuerry}`, (err, getlatestpurchaseserialResult) => {
     if (err) {
@@ -117,7 +118,7 @@ exports.getLatestPurchaseSerial = (req, res, next) => {
 };
 
 exports.getAllPurchases = (req, res, next) => {
-  let defaultQuerry = `select * from purchase where purchase_active_or_not=1 order by purchase_serial desc limit 1000 `;
+  let defaultQuerry = `select * from purchase where purchase_active_or_not=1 order by purchase_serial desc limit 1000`;
   // let defaultQuerry = `select p.purchase_serial, p.purchase_date,  c.customer_id, c.customer_name , p.purchase_shift, p.milk_type, p.milk_fat, p.milk_clr, p.milk_rate, p.milk_quantity , p.milk_amount FROM customer c join purchase p on c.customer_id = p.customer_id order by p.purchase_serial desc limit 1000`;
 
   const customeridQuery = req.query.customer_id;

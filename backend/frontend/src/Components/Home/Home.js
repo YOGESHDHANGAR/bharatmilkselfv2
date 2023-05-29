@@ -17,9 +17,11 @@ const Home = () => {
   const dispatch = useDispatch();
   const {
     allpurchases,
-    loading,
+    error: allpurchasesError,
+    loading: allpurchasesLoadig,
     totalQuantityAmountQueryResultofallpurchases,
   } = useSelector((state) => state.allpurchases);
+
   const { allcustomers, error: allcustomersError } = useSelector(
     (state) => state.allcustomers
   );
@@ -36,18 +38,22 @@ const Home = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (allcustomersError) {
-      alert.error(allcustomersError);
+    if (allpurchasesError) {
+      showErrorToast(allpurchasesError);
       dispatch(clearErrors());
     }
-  }, [dispatch, allcustomersError, alert]);
+    if (allcustomersError) {
+      showErrorToast(allcustomersError);
+      dispatch(clearErrors());
+    }
+  }, [allcustomersError, allpurchasesError]);
 
   return (
     <div>
       <MetaData title="Home" />
-      <Filter allcustomers={allcustomers} loading={loading} />
+      <Filter allcustomers={allcustomers} loading={allpurchasesLoadig} />
       <Header />
-      {loading === true ? (
+      {allpurchasesLoadig === true ? (
         <Loading />
       ) : allpurchases.length === 0 ? (
         <div className="no_result_found">
@@ -75,7 +81,7 @@ const Home = () => {
         })
       )}
       <>
-        {loading === false && allpurchases.length !== 0 && (
+        {allpurchasesLoadig === false && allpurchases.length !== 0 && (
           <div>
             <Box sx={{ ...commonStyles, border: 0.3 }} />
             <div className="home_totalling_Field">

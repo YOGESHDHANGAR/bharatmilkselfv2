@@ -14,10 +14,12 @@ app.use(bodyParser());
 const purchaseRouter = require("./routes/purchaseRoutes");
 const customerRouter = require("./routes/customerRoutes");
 const fatRateRouter = require("./routes/fatRateRoutes");
+const customDataSelectorRouter = require("./routes/customDataSelectorRouter");
 
 app.use("/api/v1", purchaseRouter);
 app.use("/api/v1", customerRouter);
 app.use("/api/v1", fatRateRouter);
+app.use("/api/v1", customDataSelectorRouter);
 
 app.use(express.static(path.join(__dirname, "./frontend/build")));
 

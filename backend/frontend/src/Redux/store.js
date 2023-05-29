@@ -26,8 +26,14 @@ import {
   getFatRateReducer,
   updateFatRateReducer,
 } from "./reducers/fatRateReducers";
+import {
+  customDataSelectorReducer,
+  getpreviousSelectedYearReducer,
+} from "./reducers/customDataSelectorReducer";
 
 const reducer = combineReducers({
+  getpreviousselectedyear: getpreviousSelectedYearReducer,
+  customdataselector: customDataSelectorReducer,
   createpurchase: createPurchaseReducer,
   getlatestpurchaseserial: getLatestPurchaseSerialReducer,
   allpurchases: getAllPurchaseReducer,

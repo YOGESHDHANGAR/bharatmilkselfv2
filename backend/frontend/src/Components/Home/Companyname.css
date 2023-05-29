@@ -14,6 +14,15 @@
   text-decoration: none;
 }
 
+.companyname_and_data_selector {
+  display: flex;
+  align-items: center;
+}
+
+.data_selector {
+  margin-left: 1vmax;
+}
+
 .navlinks {
   font-size: 1.1rem;
 }

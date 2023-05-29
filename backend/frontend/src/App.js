@@ -5,8 +5,35 @@ import Weekpayment from "./Components/Weekpayment/Weekpayment";
 import Purchaseentry from "./Components/Purchaseentry/Purchaseentry";
 import Customerentry from "./Components/Customerentry/Customerentry";
 import Customerwisepurchases from "./Components/Customerwisepurchases/Customerwisepurchases";
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 function App() {
+  const showErrorToast = (message) => {
+    toast.error(message, {
+      autoClose: 5000,
+    });
+  };
+  const {
+    customdataselector,
+    loading: customdataselectorLoading,
+    error: customdataselectorError,
+  } = useSelector((state) => state.customdataselector);
+
+  useEffect(() => {
+    if (customdataselectorLoading === false) {
+      console.log("customdataselectorhome", customdataselector);
+      window.location.reload();
+    }
+  }, [customdataselectorLoading]);
+
+  useEffect(() => {
+    if (customdataselectorError) {
+      showErrorToast(customdataselectorError);
+      dispatch(clearErrors());
+    }
+  }, [customdataselectorError]);
+
   return (
     <BrowserRouter className="App">
       <Companyname />

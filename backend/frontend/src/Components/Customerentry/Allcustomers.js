@@ -17,14 +17,6 @@ const Allcustomers = (props) => {
 
   const { allcustomersErorr } = useSelector((state) => state.allcustomers);
 
-  // const handleSwitchChange = () => {
-  //   const new_customer_active_or_not = customer_active_or_not === 1 ? 0 : 1;
-  //   console.log("new_customer_active_or_not", new_customer_active_or_not);
-  //   dispatch();
-  // };
-
-  useEffect(() => {}, []);
-
   useEffect(() => {
     if (allcustomersErorr) {
       showErrorToast(allcustomersErorr);

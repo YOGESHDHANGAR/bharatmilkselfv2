@@ -1,5 +1,4 @@
 const mysql = require("mysql");
-const ErrorHandler = require("../utils/errorhander");
 
 const con = mysql.createConnection({
   host: "localhost",

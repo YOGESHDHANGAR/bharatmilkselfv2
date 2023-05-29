@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useSelector, useDispatch } from "react-redux";
 import "./Purchaseentry.css";
 import {
@@ -11,8 +13,6 @@ import {
 } from "../../Redux/actions/purchaseActions";
 import { getAllCustomerAction } from "../../Redux/actions/customerActions";
 import { getFatRateAction } from "../../Redux/actions/fatRateActions";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import MetaData from "../MetaData/MetaData";
 
 const Purchaseentry = () => {

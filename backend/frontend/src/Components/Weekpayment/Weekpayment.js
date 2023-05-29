@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./Weekpayment.css";
 import Weekpaymentcolumn from "./Weekpaymentcolumn";
 import Weekpaymentfilter from "./Weekpaymentfilter";
@@ -14,11 +16,16 @@ import Loading from "../Loading/Loading";
 import MetaData from "../MetaData/MetaData";
 
 const Weekpayment = () => {
+  const showErrorToast = (message) => {
+    toast.error(message, {
+      autoClose: 5000,
+    });
+  };
   const dispatch = useDispatch();
   const {
     weekwisepurchase,
     totalQuantityAmountQueryResult,
-    loading,
+    loading: weekwisepurchaseLoading,
     error: weekwisepurchasError,
   } = useSelector((state) => state.weekwisepurchase);
 
@@ -39,30 +46,27 @@ const Weekpayment = () => {
 
   useEffect(() => {
     if (weekwisepurchasError) {
-      alert.error(weekwisepurchasError);
+      showErrorToast(weekwisepurchasError);
       dispatch(clearErrors());
     }
     if (weekwisepurchaseforsecondlastweekError) {
-      alert.error(weekwisepurchaseforsecondlastweekError);
+      showErrorToast(weekwisepurchaseforsecondlastweekError);
       dispatch(clearErrors());
     }
-  }, [
-    dispatch,
-    weekwisepurchasError,
-    weekwisepurchaseforsecondlastweekError,
-    alert,
-  ]);
+  }, [dispatch, weekwisepurchasError, weekwisepurchaseforsecondlastweekError]);
 
   return (
     <div>
       <MetaData title="Week_Payment" />
       <Weekpaymentfilter />
       <Weekpaymentheader />
-      {loading === true ? (
+      {weekwisepurchaseLoading === true ? (
         <Loading />
       ) : weekwisepurchase.length === 0 ? (
         <div className="no_result_found">
-          <h1>No Result Found!</h1>
+          <h1>
+            No Result Found! <br /> Select Different Dates!
+          </h1>
         </div>
       ) : (
         weekwisepurchase.map((elem, index) => {
@@ -93,7 +97,7 @@ const Weekpayment = () => {
           );
         })
       )}
-      {loading === false && weekwisepurchase.length !== 0 && (
+      {weekwisepurchaseLoading === false && weekwisepurchase.length !== 0 && (
         <div>
           <Box sx={{ ...commonStyles, border: 0.3 }} />
           <div className="weekpayment_totalling_Field">
@@ -107,6 +111,7 @@ const Weekpayment = () => {
           <Box sx={{ ...commonStyles, border: 1.6 }} />
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 };

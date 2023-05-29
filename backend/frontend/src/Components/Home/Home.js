@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Filter from "./Filter";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -14,6 +16,11 @@ import Box from "@mui/material/Box";
 import MetaData from "../MetaData/MetaData";
 
 const Home = () => {
+  const showErrorToast = (message) => {
+    toast.error(message, {
+      autoClose: 5000,
+    });
+  };
   const dispatch = useDispatch();
   const {
     allpurchases,
@@ -102,6 +109,7 @@ const Home = () => {
           </div>
         )}
       </>
+      <ToastContainer />
     </div>
   );
 };

@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./Customerwisepurchases.css";
 import Customerwisepurchasescolumn from "./Customerwisepurchasescolumn";
 import Customerwisepurchasesheader from "./Customerwisepurchasesheader";
@@ -10,8 +12,6 @@ import {
   clearErrors,
   customerWisePurchaseAction,
 } from "../../Redux/actions/purchaseActions";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import ReactDOM from "react-dom";
 import Purchaseentry from "../Purchaseentry/Purchaseentry";
 import MetaData from "../MetaData/MetaData";

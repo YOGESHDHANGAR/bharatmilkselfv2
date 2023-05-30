@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./Weekpaymentfilter.css";
 import "react-datepicker/dist/react-datepicker.css";
 import { useDispatch } from "react-redux";
-import { weekWisePurchaseAction } from "../../Redux/actions/purchaseActions";
+import {
+  weekWisePurchaseAction,
+  weekWisePurchaseForSecondLastWeekAction,
+} from "../../Redux/actions/purchaseActions";
 import lastWeekDates from "../../utils/lastWeekDates";
 
 const Filter = () => {
@@ -23,7 +26,8 @@ const Filter = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    dispatch(weekWisePurchaseAction(1, fromDate, toDate));
+    dispatch(weekWisePurchaseAction(fromDate, toDate));
+    dispatch(weekWisePurchaseForSecondLastWeekAction(fromDate, toDate));
   };
 
   const handlePrint = () => {

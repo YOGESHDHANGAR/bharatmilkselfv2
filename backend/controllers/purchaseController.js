@@ -181,78 +181,101 @@ exports.getAllPurchases = (req, res, next) => {
   });
 };
 
-exports.weekWisePurchase = (req, res, next) => {
-  const noOfWeeks = req.query.noOfWeeks;
-
-  const currentDate = new Date().toJSON().slice(0, 10);
-
+const calculaeWeekWisePurchase = async (weekNumber, currentDate1) => {
   const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(
-    currentDate,
-    noOfWeeks
+    currentDate1,
+    weekNumber
   );
-  let fromDate = lastWeekStartDate;
-  let toDate = lastWeekEndDate;
-  const fromDateQuery = req.query.fromDate;
-  const toDateQuery = req.query.toDate;
 
-  if (fromDateQuery && toDateQuery) {
-    fromDate = fromDateQuery;
-    toDate = toDateQuery;
+  const fromDate = lastWeekStartDate;
+  const toDate = lastWeekEndDate;
+
+  let calculaeWeekWisePurchaseQuery;
+  let calculaeWeekWisePurchaseTotalAmountQuery = `select sum(milk_quantity) as weekTotalQuantity, sum(milk_amount) as weekTotalAmount from purchase  where purchase_active_or_not=${1} and purchase_date between "${fromDate}" and "${toDate}"`;
+  if (weekNumber === 1) {
+    calculaeWeekWisePurchaseQuery = `select customer_id, customer_name, round(sum(milk_quantity),2) as milkTotalQuantity, round(sum(milk_amount),2) as milkTotalAmount from purchase where purchase_active_or_not=${1} and purchase_date between "${fromDate}" and "${toDate}"  group by customer_id, customer_name order by customer_name`;
+  } else {
+    const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(
+      currentDate1,
+      1
+    );
+
+    calculaeWeekWisePurchaseQuery = `
+    SELECT
+    c.customer_id,
+    c.customer_name,
+    ROUND(SUM(p.milk_quantity), 2) AS milkTotalQuantity,
+    ROUND(SUM(p.milk_amount), 2) AS milkTotalAmount
+    FROM
+      customer AS c
+    LEFT JOIN
+      (
+        SELECT
+          customer_id,
+          milk_quantity,
+          milk_amount
+        FROM
+          purchase
+        WHERE
+          purchase_date >= '${fromDate}' AND purchase_date <= '${toDate}'
+      ) AS p ON c.customer_id = p.customer_id
+    WHERE
+      c.customer_id IN (
+        SELECT DISTINCT customer_id
+        FROM purchase
+        WHERE purchase_date >= '${lastWeekStartDate}' AND purchase_date <= '${lastWeekEndDate}'
+      )
+    GROUP BY
+      c.customer_id,
+      c.customer_name
+    ORDER BY
+      c.customer_name;
+    `;
   }
 
-  let defaultQuerry = `select customer_id, customer_name, round(sum(milk_quantity),2) as milkTotalQuantity, ROUND(SUM(milk_amount),2) as milkTotalAmount from purchase where purchase_active_or_not=${1} and purchase_date between "${fromDate}" and "${toDate}"  group by customer_id, customer_name order by customer_name`;
-  let totalAmountQuery = `select sum(milk_quantity) as weekTotalQuantity, sum(milk_amount) as weekTotalAmount from purchase  where purchase_active_or_not=${1} and purchase_date between "${fromDate}" and "${toDate}"`;
-  con.query(`${defaultQuerry}`, (err, weekpayment) => {
-    if (err) {
-      return next(new ErrorHandler(err.sqlMessage, 500));
-    } else {
-      con.query(
-        `${totalAmountQuery}`,
-        (err, totalQuantityAmountQueryResult) => {
-          if (err) {
-            return next(new ErrorHandler(err.sqlMessage, 500));
-          } else {
-            res.send({ weekpayment, totalQuantityAmountQueryResult });
-          }
-        }
-      );
-    }
-  });
+  try {
+    const calculaeWeekWisePurchaseQueryResult = await queryAsync(
+      calculaeWeekWisePurchaseQuery
+    );
+
+    const calculaeWeekWisePurchaseTotalAmountQueryResult = await queryAsync(
+      calculaeWeekWisePurchaseTotalAmountQuery
+    );
+
+    return {
+      calculaeWeekWisePurchaseQueryResult,
+      calculaeWeekWisePurchaseTotalAmountQueryResult,
+    };
+  } catch (err) {
+    return new Error(err);
+  }
 };
 
-exports.weekWisePurchaseForSecondLastWeek = (req, res, next) => {
-  const currentDate = new Date().toJSON().slice(0, 10);
-  const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(currentDate, 2);
-  let secondLastWeekStartDate = lastWeekStartDate;
-  let secondLastWeekEndDate = lastWeekEndDate;
-
-  let fromDate = secondLastWeekStartDate;
-  let toDate = secondLastWeekEndDate;
-  let purchase_shift = "Both";
+exports.weekWisePurchase = async (req, res, next) => {
+  const todayDate = new Date().toJSON().slice(0, 10);
   const fromDateQuery = req.query.fromDate;
   const toDateQuery = req.query.toDate;
-  const shiftQuery = req.query.purchase_shift;
+
+  let lastWeek1;
+  let lastWeek2;
+  let lastWeek3;
+  let lastWeek4;
 
   if (fromDateQuery && toDateQuery) {
     fromDate = fromDateQuery;
     toDate = toDateQuery;
-  }
-  if (shiftQuery && shiftQuery != "Both") {
-    purchase_shift = shiftQuery;
+    lastWeek1 = await calculaeWeekWisePurchase(1, fromDate);
+    lastWeek2 = await calculaeWeekWisePurchase(2, fromDate);
+    lastWeek3 = await calculaeWeekWisePurchase(3, fromDate);
+    lastWeek4 = await calculaeWeekWisePurchase(4, fromDate);
+  } else {
+    lastWeek1 = await calculaeWeekWisePurchase(1, todayDate);
+    lastWeek2 = await calculaeWeekWisePurchase(2, todayDate);
+    lastWeek3 = await calculaeWeekWisePurchase(3, todayDate);
+    lastWeek4 = await calculaeWeekWisePurchase(4, todayDate);
   }
 
-  let defaultQuerryfrosecondlastweek = `select customer_name, ROUND(SUM(milk_quantity),2) AS TotalQuantity, ROUND(AVG(milk_fat),2) AS Fat, ROUND(AVG(milk_rate),2) AS RATE, ROUND(SUM(milk_amount),2) AS TotalAmount FROM purchase WHERE purchase_active_or_not=${1} and purchase_date>="${fromDate}" AND purchase_date<="${toDate}" GROUP BY customer_name ORDER BY customer_name`;
-
-  con.query(
-    `${defaultQuerryfrosecondlastweek}`,
-    (err, weekpaymentpurchaseforsecondlastweek) => {
-      if (err) {
-        return next(new ErrorHandler(err.sqlMessage, 500));
-      } else {
-        res.send(weekpaymentpurchaseforsecondlastweek);
-      }
-    }
-  );
+  res.send({ lastWeek1, lastWeek2, lastWeek3, lastWeek4 });
 };
 
 exports.customerWisePurchase = (req, res, next) => {

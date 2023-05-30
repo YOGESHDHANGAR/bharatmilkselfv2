@@ -1,3 +1,28 @@
+.Week_Payment_container {
+  display: flex;
+}
+
+.Week_Payment_name_container {
+  width: 65%;
+}
+
+.week_divider {
+  width: 35%;
+  display: flex;
+}
+
+.week_divider2 {
+  flex: 0.33;
+}
+
+.week_divider3 {
+  flex: 0.33;
+}
+
+.week_divider4 {
+  flex: 0.33;
+}
+
 .weekpayment_totalling_Field {
   display: flex;
   flex-direction: row;
@@ -8,10 +33,10 @@
 
 .weekpayment_totalMilk_Field {
   width: 7.5%;
-  margin-left: 45vmax;
+  margin-left: 43vmax;
 }
 
 .weekpayment_total_Amount_Field {
   width: 7.5%;
-  margin-right: 33.5vmax;
+  margin-right: 5vmax;
 }

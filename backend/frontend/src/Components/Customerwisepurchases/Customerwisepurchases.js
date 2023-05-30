@@ -143,7 +143,8 @@ const Customerwisepurchases = React.memo(() => {
       </div>
       {loading === true ? (
         <Loading />
-      ) : customerWisePurchaseState.length === 0 ? (
+      ) : customerWisePurchaseState === undefined ||
+        customerWisePurchaseState.length === 0 ? (
         <div className="no_result_found">
           <h1>No Result Found!</h1>
         </div>

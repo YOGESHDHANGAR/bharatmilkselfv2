@@ -251,10 +251,11 @@ export const weekWisePurchaseReducer = (
     case WEEK_WISE_PURCHASE_SUCCESS:
       return {
         ...state,
+        lastWeek1: action.payload.lastWeek1,
+        lastWeek2: action.payload.lastWeek2,
+        lastWeek3: action.payload.lastWeek3,
+        lastWeek4: action.payload.lastWeek4,
         loading: false,
-        weekwisepurchase: action.payload.weekpayment,
-        totalQuantityAmountQueryResult:
-          action.payload.totalQuantityAmountQueryResult,
       };
     case WEEK_WISE_PURCHASE_FAIL:
       return {
@@ -281,7 +282,7 @@ export const weekWisePurchaseForSecondLastWeekReducer = (
     case WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_REQUEST:
       return {
         ...state,
-        loadin: true,
+        loading: true,
       };
 
     case WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_SUCCESS:
@@ -293,7 +294,7 @@ export const weekWisePurchaseForSecondLastWeekReducer = (
     case WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_FAIL:
       return {
         ...state,
-        loadin: false,
+        loading: false,
         error: action.payload,
       };
     case CLEAR_ERRORS:

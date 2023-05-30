@@ -26,13 +26,6 @@ const Weekpaymentcolumn = (props) => {
       <div className="weekpayment_column_amount_lable">
         <h3>₹{props.milkTotalAmount.toFixed(2)}</h3>
       </div>
-
-      <div className="weekpayment_column_last_week_amount_lable">
-        <h3>₹{props.LastWeekAmount.toFixed(2)}</h3>
-      </div>
-      <div className="weekpayment_column_last_week_signature_lable">
-        <h3>{props.signatureSpace}</h3>
-      </div>
     </div>
   );
 };

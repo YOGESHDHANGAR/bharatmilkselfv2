@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Weekpayment.css";
@@ -9,11 +9,18 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   clearErrors,
   weekWisePurchaseAction,
-  weekWisePurchaseForSecondLastWeekAction,
 } from "../../Redux/actions/purchaseActions";
 import Box from "@mui/material/Box";
 import Loading from "../Loading/Loading";
 import MetaData from "../MetaData/MetaData";
+import "./Weekpaymentcolumn2.css";
+import Weekpaymentcolumn2 from "./Weekpaymentcolumn2";
+
+const commonStyles = {
+  bgcolor: "black",
+  borderColor: "black",
+  width: "65vw",
+};
 
 const Weekpayment = () => {
   const showErrorToast = (message) => {
@@ -23,96 +30,131 @@ const Weekpayment = () => {
   };
   const dispatch = useDispatch();
   const {
-    weekwisepurchase,
-    totalQuantityAmountQueryResult,
+    lastWeek1,
+    lastWeek2,
+    lastWeek3,
+    lastWeek4,
     loading: weekwisepurchaseLoading,
-    error: weekwisepurchasError,
+    error: weekwisepurchaseError,
   } = useSelector((state) => state.weekwisepurchase);
 
-  const {
-    weekwisepurchaseforsecondlastweek,
-    error: weekwisepurchaseforsecondlastweekError,
-  } = useSelector((state) => state.weekwisepurchaseforsecondlastweek);
-
-  const commonStyles = {
-    bgcolor: "black",
-    borderColor: "black",
-    width: "100vw",
-  };
   useEffect(() => {
-    dispatch(weekWisePurchaseAction(1));
-    dispatch(weekWisePurchaseForSecondLastWeekAction(2));
+    dispatch(weekWisePurchaseAction());
   }, [dispatch]);
 
   useEffect(() => {
-    if (weekwisepurchasError) {
-      showErrorToast(weekwisepurchasError);
+    if (weekwisepurchaseError) {
+      showErrorToast(weekwisepurchaseError);
       dispatch(clearErrors());
     }
-    if (weekwisepurchaseforsecondlastweekError) {
-      showErrorToast(weekwisepurchaseforsecondlastweekError);
-      dispatch(clearErrors());
-    }
-  }, [dispatch, weekwisepurchasError, weekwisepurchaseforsecondlastweekError]);
+  }, [weekwisepurchaseError]);
 
   return (
-    <div>
+    <>
       <MetaData title="Week_Payment" />
       <Weekpaymentfilter />
       <Weekpaymentheader />
-      {weekwisepurchaseLoading === true ? (
-        <Loading />
-      ) : weekwisepurchase.length === 0 ? (
-        <div className="no_result_found">
-          <h1>
-            No Result Found! <br /> Select Different Dates!
-          </h1>
-        </div>
-      ) : (
-        weekwisepurchase.map((elem, index) => {
-          let lastWeekElem = { TotalAmount: 0 };
-
-          for (let i = 0; i < weekwisepurchaseforsecondlastweek.length; i++) {
-            if (
-              elem.customer_name ===
-              weekwisepurchaseforsecondlastweek[i].customer_name
-            ) {
-              lastWeekElem = weekwisepurchaseforsecondlastweek[i];
-            }
-          }
-
-          return (
-            <Weekpaymentcolumn
-              key={index}
-              count={index}
-              Sno={index}
-              customer_id={elem.customer_id}
-              customer_name={elem.customer_name}
-              purchase_shift={elem.purchase_shift}
-              milkTotalQuantity={elem.milkTotalQuantity}
-              milkTotalAmount={elem.milkTotalAmount}
-              LastWeekAmount={lastWeekElem.TotalAmount}
-              signaturespace={"signaturesignature"}
-            />
-          );
-        })
-      )}
-      {weekwisepurchaseLoading === false && weekwisepurchase.length !== 0 && (
-        <div>
-          <Box sx={{ ...commonStyles, border: 0.3 }} />
-          <div className="weekpayment_totalling_Field">
-            <h3 className="weekpayment_totalMilk_Field">
-              {totalQuantityAmountQueryResult[0].weekTotalQuantity.toFixed(1)}L
-            </h3>
-            <h3 className="weekpayment_total_Amount_Field">
-              ₹{totalQuantityAmountQueryResult[0].weekTotalAmount.toFixed(2)}
-            </h3>
+      <div className="Week_Payment">
+        {weekwisepurchaseLoading === true ? (
+          <Loading />
+        ) : lastWeek1 === undefined || lastWeek1.length === 0 ? (
+          <div className="no_result_found">
+            <h1>
+              No Result Found! <br /> Select Different Dates!
+            </h1>
           </div>
-          <Box sx={{ ...commonStyles, border: 1.6 }} />
-        </div>
-      )}
+        ) : (
+          <div className="Week_Payment_container">
+            <div className="Week_Payment_name_container">
+              <div>
+                {lastWeek1 &&
+                  lastWeek1.calculaeWeekWisePurchaseQueryResult.map(
+                    (elem, index) => {
+                      return (
+                        <Weekpaymentcolumn
+                          key={index}
+                          count={index}
+                          Sno={index}
+                          customer_id={elem.customer_id}
+                          customer_name={elem.customer_name}
+                          purchase_shift={elem.purchase_shift}
+                          milkTotalQuantity={elem.milkTotalQuantity}
+                          milkTotalAmount={elem.milkTotalAmount}
+                        />
+                      );
+                    }
+                  )}
+              </div>
+              <div>
+                <Box sx={{ ...commonStyles, border: 0.3 }} />
+                <div className="weekpayment_totalling_Field">
+                  <h3 className="weekpayment_totalMilk_Field">
+                    {lastWeek1.calculaeWeekWisePurchaseTotalAmountQueryResult[0].weekTotalQuantity.toFixed(
+                      1
+                    )}
+                    L
+                  </h3>
+                  <h3 className="weekpayment_total_Amount_Field">
+                    ₹
+                    {lastWeek1.calculaeWeekWisePurchaseTotalAmountQueryResult[0].weekTotalAmount.toFixed(
+                      2
+                    )}
+                  </h3>
+                </div>
+                <Box sx={{ ...commonStyles, border: 1.6 }} />
+              </div>
+            </div>
+
+            <div className="week_divider">
+              <div className="week_divider2">
+                {lastWeek2 &&
+                  lastWeek2.calculaeWeekWisePurchaseQueryResult.map(
+                    (elem, index) => {
+                      return (
+                        <Weekpaymentcolumn2
+                          key={index}
+                          count={index}
+                          milkTotalAmount={elem.milkTotalAmount}
+                        />
+                      );
+                    }
+                  )}
+              </div>
+
+              <div className="week_divider3">
+                {lastWeek3 &&
+                  lastWeek3.calculaeWeekWisePurchaseQueryResult.map(
+                    (elem, index) => {
+                      return (
+                        <Weekpaymentcolumn2
+                          key={index}
+                          count={index}
+                          milkTotalAmount={elem.milkTotalAmount}
+                        />
+                      );
+                    }
+                  )}
+              </div>
+              <div className="week_divider3">
+                {lastWeek4 &&
+                  lastWeek4.calculaeWeekWisePurchaseQueryResult.map(
+                    (elem, index) => {
+                      return (
+                        <Weekpaymentcolumn2
+                          key={index}
+                          count={index}
+                          milkTotalAmount={elem.milkTotalAmount}
+                        />
+                      );
+                    }
+                  )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
       <ToastContainer />
-    </div>
+    </>
   );
 };
 

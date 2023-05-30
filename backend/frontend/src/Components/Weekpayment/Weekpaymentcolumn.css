@@ -1,49 +1,26 @@
 .weekpayment_column_container {
   display: flex;
-  justify-content: space-around;
-  flex-direction: row;
   border-style: inset;
   border-width: 0.5px;
   padding: 4px 0;
-  padding-left: 20px;
+  padding-left: 10px;
 }
 
 .weekpayment_column_sno_lable {
-  flex: 0.05;
+  flex: 0.08;
 }
 
 .weekpayment_column_id_lable {
-  flex: 0.05;
+  flex: 0.08;
 }
 .weekpayment_column_name_lable {
-  flex: 0.25;
+  flex: 0.5;
 }
 
 .weekpayment_column_quantity_lable {
-  flex: 0.1;
-}
-
-.weekpayment_column_fat_lable {
-  flex: 0.1;
-}
-
-.weekpayment_column_rate_lable {
-  flex: 0.1;
+  flex: 0.2;
 }
 
 .weekpayment_column_amount_lable {
   flex: 0.1;
 }
-
-.weekpayment_column_last_week_amount_lable {
-  flex: 0.1;
-  color: rgba(87, 87, 87, 0.415);
-
-}
-
-.weekpayment_column_last_week_signature_lable {
-  flex: 0.15;
-  visibility: hidden;
-
-}
-

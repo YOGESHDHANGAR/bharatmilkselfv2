@@ -204,7 +204,7 @@ export const deletePurchaseAction = (purchaseSerial) => async (dispatch) => {
 
 //Week Payment
 export const weekWisePurchaseAction =
-  (noOfWeeks, fromDate, toDate) => async (dispatch) => {
+  (fromDate, toDate) => async (dispatch) => {
     try {
       dispatch({ type: WEEK_WISE_PURCHASE_REQUEST });
 
@@ -215,12 +215,10 @@ export const weekWisePurchaseAction =
       if (toDate) {
         link = link + `toDate=${toDate}&`;
       }
-      if (noOfWeeks) {
-        link = link + `noOfWeeks=${noOfWeeks}&`;
-      }
       link = link.slice(0, -1);
 
       const { data } = await axios.get(link);
+      console.log("data", data);
 
       dispatch({
         type: WEEK_WISE_PURCHASE_SUCCESS,
@@ -236,7 +234,7 @@ export const weekWisePurchaseAction =
 
 //weekwise purchase for second last week
 export const weekWisePurchaseForSecondLastWeekAction =
-  (noOfWeeks, fromDate, toDate) => async (dispatch) => {
+  (fromDate, toDate) => async (dispatch) => {
     try {
       dispatch({ type: WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_REQUEST });
 
@@ -246,9 +244,6 @@ export const weekWisePurchaseForSecondLastWeekAction =
       }
       if (toDate) {
         link = link + `toDate=${toDate}&`;
-      }
-      if (noOfWeeks) {
-        link = link + `noOfWeeks=${noOfWeeks}&`;
       }
       link = link.slice(0, -1);
 

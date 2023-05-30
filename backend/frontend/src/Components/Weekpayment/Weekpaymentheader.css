@@ -1,48 +1,49 @@
 .header_container {
   display: flex;
-  justify-content: space-around;
   background-color: rgb(135, 167, 216);
   color: white;
   font-weight: 100;
-  padding-left: 20px;
   position: sticky;
   top: 0;
+  padding-left: 10px;
+}
+.header_part1 {
+  display: flex;
+  width: 70%;
+}
+.header_part2 {
+  display: flex;
+  width: 30%;
 }
 
 .header_sno_lable {
-  flex: 0.05;
+  flex: 0.075;
 }
 
 .header_id_lable {
-  flex: 0.05;
+  flex: 0.075;
 }
 
 .header_name_lable {
-  flex: 0.25;
+  flex: 0.46;
 }
 
 .header_quantity_lable {
-  flex: 0.1;
-}
-
-.header_fat_lable {
-  flex: 0.1;
-}
-
-.header_rate_lable {
-  flex: 0.1;
+  flex: 0.18;
 }
 
 .header_amount_lable {
   flex: 0.1;
 }
 
-.header_last_week_amount_lable {
-  flex: 0.1;
+.header_Last_Week_lable {
+  flex: 0.3;
 }
 
+.header_Second_Last_lable {
+  flex: 0.35;
+}
 
-.header_last_week_signature_lable {
-  margin-left: 20px;
-  flex: 0.15;
+.header_Third_Last_lable {
+  flex: 0.35;
 }

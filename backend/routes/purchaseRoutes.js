@@ -6,7 +6,6 @@ const {
   singlePurchase,
   updatePurchase,
   deletePurchase,
-  weekWisePurchaseForSecondLastWeek,
   customerWisePurchaseForSecondLastWeek,
   customerWisePurchase,
   getLatestPurchaseSerial,
@@ -21,10 +20,6 @@ router.route("/createpurchase").post(createPurchase);
 router.route("/allpurchases").get(getAllPurchases);
 
 router.route("/weekwisepurchase").get(weekWisePurchase);
-
-router
-  .route("/weekwisepurchaseforsecondlastweek")
-  .get(weekWisePurchaseForSecondLastWeek);
 
 router.route("/singlepurchase").get(singlePurchase);
 

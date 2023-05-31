@@ -176,31 +176,35 @@ export const updatePurchaseAction =
   };
 
 //Delete Purchase
-export const deletePurchaseAction = (purchaseSerial) => async (dispatch) => {
-  try {
-    dispatch({
-      type: DELETE_PURCHASE_REQUEST,
-    });
+export const deletePurchaseAction =
+  (purchaseSerial, purchaseDate) => async (dispatch) => {
+    try {
+      dispatch({
+        type: DELETE_PURCHASE_REQUEST,
+      });
 
-    let link = `http://localhost:5000/api/v1/deletepurchase?`;
-    if (purchaseSerial) {
-      link = link + `purchase_serial=${purchaseSerial}&`;
+      let link = `http://localhost:5000/api/v1/deletepurchase?`;
+      if (purchaseSerial) {
+        link = link + `purchase_serial=${purchaseSerial}&`;
+      }
+      if (purchaseDate) {
+        link = link + `purchase_date=${purchaseDate}&`;
+      }
+      link = link.slice(0, -1);
+
+      const { data } = await axios.delete(link);
+
+      dispatch({
+        type: DELETE_PURCHASE_SUCCESS,
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: DELETE_PURCHASE_FAIL,
+        payload: error.response.data.message,
+      });
     }
-    link = link.slice(0, -1);
-
-    const { data } = await axios.delete(link);
-
-    dispatch({
-      type: DELETE_PURCHASE_SUCCESS,
-      payload: data,
-    });
-  } catch (error) {
-    dispatch({
-      type: DELETE_PURCHASE_FAIL,
-      payload: error.response.data.message,
-    });
-  }
-};
+  };
 
 //Week Payment
 export const weekWisePurchaseAction =

@@ -6,6 +6,17 @@ const util = require("util");
 // Promisify the con.query function
 const queryAsync = util.promisify(con.query).bind(con);
 
+const handleLockedDate = async () => {
+  let getLockedDateQuery = `select * from lockdatetable where locked_date_serial = 1`;
+
+  try {
+    const getLockedDateQueryResult = await queryAsync(getLockedDateQuery);
+    return getLockedDateQueryResult;
+  } catch (err) {
+    return new Error(err);
+  }
+};
+
 const handleRateAndAmount = async (milkQuantity, milkFat, milkClr) => {
   let remainder = (milkFat * 10) % 3;
   let milkNewFat = milkFat;
@@ -61,6 +72,21 @@ exports.createPurchase = async (req, res, next) => {
     milk_fat,
     milk_clr
   );
+
+  const getLockedDateQueryResult = await handleLockedDate();
+
+  let got_locked_date = getLockedDateQueryResult[0].locked_date;
+
+  const new_purchase_date = new Date(purchase_date);
+
+  if (new_purchase_date <= got_locked_date) {
+    return next(
+      new ErrorHandler(
+        `Not allowd below date ${new_purchase_date} first unlock it!`,
+        401
+      )
+    );
+  }
 
   milk_rate = checked_milk_rate;
   milk_amount = checked_milk_amount;
@@ -359,6 +385,21 @@ exports.updatePurchase = async (req, res, next) => {
   let milk_rate = req.body.milk_rate;
   let milk_amount = req.body.milk_amount;
 
+  const getLockedDateQueryResult = await handleLockedDate();
+
+  let got_locked_date = getLockedDateQueryResult[0].locked_date;
+
+  const new_purchase_date = new Date(purchase_date);
+
+  if (new_purchase_date <= got_locked_date) {
+    return next(
+      new ErrorHandler(
+        `Not allowd below date ${new_purchase_date} first unlock it!`,
+        401
+      )
+    );
+  }
+
   const { checked_milk_rate, checked_milk_amount } = await handleRateAndAmount(
     milk_quantity,
     milk_fat,
@@ -407,8 +448,24 @@ exports.updatePurchase = async (req, res, next) => {
   });
 };
 
-exports.deletePurchase = (req, res, next) => {
-  const purchase_serial = req.query.purchase_serial;
+exports.deletePurchase = async (req, res, next) => {
+  let purchase_serial = req.query.purchase_serial;
+  let purchase_date = req.query.purchase_date;
+
+  const getLockedDateQueryResult = await handleLockedDate();
+
+  let got_locked_date = getLockedDateQueryResult[0].locked_date;
+
+  const new_purchase_date = new Date(purchase_date);
+
+  if (new_purchase_date <= got_locked_date) {
+    return next(
+      new ErrorHandler(
+        `Not allowd below date ${new_purchase_date} first unlock it!`,
+        401
+      )
+    );
+  }
 
   let defaultQuerry = `delete from purchase where purchase_serial=${purchase_serial}`;
 

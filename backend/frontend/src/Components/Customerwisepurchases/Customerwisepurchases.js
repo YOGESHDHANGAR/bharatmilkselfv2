@@ -53,6 +53,12 @@ const Customerwisepurchases = React.memo(() => {
     loading: updatepurchaseLoading,
   } = useSelector((state) => state.updatepurchase);
 
+  const {
+    deletepurchase,
+    error: deletepurchaseError,
+    loading: deletepurchaseLoading,
+  } = useSelector((state) => state.deletepurchase);
+
   const [customerWisePurchaseState, setCustomerWisePurchase] =
     useState(customerwisepurchase);
 
@@ -119,7 +125,11 @@ const Customerwisepurchases = React.memo(() => {
       showErrorToast(customerwisepurchaseError);
       dispatch(clearErrors());
     }
-  }, [dispatch, customerwisepurchaseError, alert]);
+    if (deletepurchaseError) {
+      showErrorToast(deletepurchaseError);
+      dispatch(clearErrors());
+    }
+  }, [dispatch, customerwisepurchaseError, deletepurchaseError, alert]);
 
   useEffect(() => {
     if (updatepurchaseLoading === false && updatepurchase.affectedRows === 1) {

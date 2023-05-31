@@ -10,7 +10,12 @@ const Customerwisepurchasescolumn = (props) => {
     let result = window.confirm("Are you sure wants to delete?");
     if (result) {
       props.handleDeleteEntryParent(props.purchase_serial);
-      dispatch(deletePurchaseAction(props.purchase_serial));
+      dispatch(
+        deletePurchaseAction(
+          props.purchase_serial,
+          props.purchase_date.slice(0, 10)
+        )
+      );
     }
   };
   const handleUpdateEntry = () => {

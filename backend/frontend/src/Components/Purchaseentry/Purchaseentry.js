@@ -257,7 +257,7 @@ const Purchaseentry = () => {
   };
 
   const handleDelete = () => {
-    dispatch(deletePurchaseAction(purchaseSerial));
+    dispatch(deletePurchaseAction(purchaseSerial, purchaseDate));
     hardResetStates();
   };
 

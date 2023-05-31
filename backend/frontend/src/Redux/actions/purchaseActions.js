@@ -222,7 +222,6 @@ export const weekWisePurchaseAction =
       link = link.slice(0, -1);
 
       const { data } = await axios.get(link);
-      console.log("data", data);
 
       dispatch({
         type: WEEK_WISE_PURCHASE_SUCCESS,

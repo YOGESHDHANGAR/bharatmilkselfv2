@@ -76,10 +76,11 @@ exports.createPurchase = async (req, res, next) => {
   const getLockedDateQueryResult = await handleLockedDate();
 
   let got_locked_date = getLockedDateQueryResult[0].locked_date;
+  let lock_status = getLockedDateQueryResult[0].lock_status;
 
   const new_purchase_date = new Date(purchase_date);
 
-  if (new_purchase_date <= got_locked_date) {
+  if (lock_status === 1 && new_purchase_date <= got_locked_date) {
     return next(
       new ErrorHandler(
         `Not allowd below date ${new_purchase_date} first unlock it!`,
@@ -388,10 +389,11 @@ exports.updatePurchase = async (req, res, next) => {
   const getLockedDateQueryResult = await handleLockedDate();
 
   let got_locked_date = getLockedDateQueryResult[0].locked_date;
+  let lock_status = getLockedDateQueryResult[0].lock_status;
 
   const new_purchase_date = new Date(purchase_date);
 
-  if (new_purchase_date <= got_locked_date) {
+  if (lock_status === 1 && new_purchase_date <= got_locked_date) {
     return next(
       new ErrorHandler(
         `Not allowd below date ${new_purchase_date} first unlock it!`,
@@ -455,10 +457,11 @@ exports.deletePurchase = async (req, res, next) => {
   const getLockedDateQueryResult = await handleLockedDate();
 
   let got_locked_date = getLockedDateQueryResult[0].locked_date;
+  let lock_status = getLockedDateQueryResult[0].lock_status;
 
   const new_purchase_date = new Date(purchase_date);
 
-  if (new_purchase_date <= got_locked_date) {
+  if (lock_status === 1 && new_purchase_date <= got_locked_date) {
     return next(
       new ErrorHandler(
         `Not allowd below date ${new_purchase_date} first unlock it!`,

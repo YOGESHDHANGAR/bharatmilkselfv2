@@ -1,20 +1,40 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Weekpaymentfilter.css";
 import "react-datepicker/dist/react-datepicker.css";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   weekWisePurchaseAction,
   weekWisePurchaseForSecondLastWeekAction,
 } from "../../Redux/actions/purchaseActions";
 import lastWeekDates from "../../utils/lastWeekDates";
+import {
+  getLockedStateAction,
+  getUpdatedLockDateAction,
+  toggleLockAction,
+} from "../../Redux/actions/lockUnlockEntriesAction";
+import Switch from "@mui/material/Switch";
+const label = { inputProps: { "aria-label": "Switch demo" } };
 
 const Filter = () => {
   const dispatch = useDispatch();
   const currentDate = new Date().toJSON().slice(0, 10);
   const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(currentDate, 1);
 
+  const {
+    loading: togglelockLoading,
+    error: togglelockError,
+    togglelock,
+  } = useSelector((state) => state.togglelock);
+
+  const {
+    loading: getlockstateLoading,
+    error: getlockstateError,
+    getlockstate,
+  } = useSelector((state) => state.getlockstate);
+
   const [fromDate, setFromDate] = useState(lastWeekStartDate);
   const [toDate, setToDate] = useState(lastWeekEndDate);
+  const [lockState, setLockState] = useState(0);
 
   const handleFromDate = (e) => {
     setFromDate(e.target.value);
@@ -24,6 +44,23 @@ const Filter = () => {
     setToDate(e.target.value);
   };
 
+  const handleLockStateHandler = () => {
+    const password = "12345";
+    if (lockState === 1) {
+      let userPassword = window.prompt("Enter the password:");
+      if (userPassword === password) {
+        alert("Password is correct! Proceeding...");
+        dispatch(toggleLockAction(lockState === 1 ? 0 : 1));
+        setLockState((prevState) => (prevState === 1 ? 0 : 1));
+      } else {
+        alert("Incorrect password. Stopping...");
+      }
+    } else {
+      dispatch(toggleLockAction(lockState === 1 ? 0 : 1));
+      setLockState((prevState) => (prevState === 1 ? 0 : 1));
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     dispatch(weekWisePurchaseAction(fromDate, toDate));
@@ -31,8 +68,19 @@ const Filter = () => {
   };
 
   const handlePrint = () => {
+    dispatch(getUpdatedLockDateAction(1, lastWeekEndDate));
     window.print();
   };
+
+  useEffect(() => {
+    if (getlockstateLoading === false) {
+      setLockState(getlockstate[0].lock_status);
+    }
+  }, [getlockstateLoading]);
+
+  useEffect(() => {
+    dispatch(getLockedStateAction());
+  }, [dispatch]);
 
   return (
     <form className="filter_container" onSubmit={handleSubmit}>
@@ -61,6 +109,13 @@ const Filter = () => {
         value="Print"
         onClick={handlePrint}
       />
+      <div className="lock_unlock_switch">
+        <Switch
+          onChange={handleLockStateHandler}
+          {...label}
+          checked={lockState === 1 ? true : false}
+        />
+      </div>
     </form>
   );
 };

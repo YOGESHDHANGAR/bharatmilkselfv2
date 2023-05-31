@@ -30,6 +30,12 @@ import {
   customDataSelectorReducer,
   getpreviousSelectedYearReducer,
 } from "./reducers/customDataSelectorReducer";
+import {
+  getLockDateReducer,
+  getLockStateReducer,
+  getUpdatedLockDateReducer,
+  toggleLockReducer,
+} from "./reducers/lockUnlockEntriesReducer";
 
 const reducer = combineReducers({
   getpreviousselectedyear: getpreviousSelectedYearReducer,
@@ -52,6 +58,10 @@ const reducer = combineReducers({
   deletecustomer: deleteCustomerReducer,
   getfatrate: getFatRateReducer,
   updatefatrate: updateFatRateReducer,
+  getlockeddate: getLockDateReducer,
+  getupdatedlockeddate: getUpdatedLockDateReducer,
+  getlockstate: getLockStateReducer,
+  togglelock: toggleLockReducer,
 });
 let initialState = {};
 

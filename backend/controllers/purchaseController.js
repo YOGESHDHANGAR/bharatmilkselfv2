@@ -83,7 +83,7 @@ exports.createPurchase = async (req, res, next) => {
   if (lock_status === 1 && new_purchase_date <= got_locked_date) {
     return next(
       new ErrorHandler(
-        `Not allowd below date ${new_purchase_date} first unlock it!`,
+        `Not allowd below date ${purchase_date} first unlock it!`,
         401
       )
     );
@@ -320,7 +320,7 @@ exports.customerWisePurchase = (req, res, next) => {
   }
 
   let defaultQuerry = `select * from purchase where purchase_active_or_not=${1} and purchase_date>="${fromDate}" and purchase_date<="${toDate}" order by customer_name asc, purchase_date asc, purchase_shift desc`;
-  // let defaultQuerry = `SELECT  * FROM ( SELECT * FROM purchase WHERE purchase_date BETWEEN "${fromDate}" AND "${toDate}" ORDER BY customer_id, name, Date, Shift ) AS subquery_alias order by name, Date, Shift`;
+
   con.query(`${defaultQuerry}`, (err, customerwisepurchase) => {
     if (err) {
       return next(new ErrorHandler(err.sqlMessage, 500));
@@ -396,7 +396,7 @@ exports.updatePurchase = async (req, res, next) => {
   if (lock_status === 1 && new_purchase_date <= got_locked_date) {
     return next(
       new ErrorHandler(
-        `Not allowd below date ${new_purchase_date} first unlock it!`,
+        `Not allowd below date ${purchase_date} first unlock it!`,
         401
       )
     );
@@ -464,7 +464,7 @@ exports.deletePurchase = async (req, res, next) => {
   if (lock_status === 1 && new_purchase_date <= got_locked_date) {
     return next(
       new ErrorHandler(
-        `Not allowd below date ${new_purchase_date} first unlock it!`,
+        `Not allowd below date ${purchase_date} first unlock it!`,
         401
       )
     );

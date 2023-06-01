@@ -15,6 +15,7 @@ exports.getLockUnclockDate = (req, res, next) => {
 exports.getUpdateLockedDate = (req, res, next) => {
   const lock_state = req.query.lock_state;
   const new_locked_date = req.query.new_locked_date;
+  console.log(new_locked_date);
 
   let defaultQuerry = `update lockdatetable set locked_date = '${new_locked_date}', lock_status =${lock_state}  where locked_date_serial = ${1}`;
 

@@ -32,6 +32,12 @@ const Filter = () => {
     getlockstate,
   } = useSelector((state) => state.getlockstate);
 
+  const {
+    loading: getlockeddateLoading,
+    error: getlockeddateError,
+    getlockeddate,
+  } = useSelector((state) => state.getlockeddate);
+
   const [fromDate, setFromDate] = useState(lastWeekStartDate);
   const [toDate, setToDate] = useState(lastWeekEndDate);
   const [lockState, setLockState] = useState(0);
@@ -47,9 +53,9 @@ const Filter = () => {
   const handleLockStateHandler = () => {
     const password = "12345";
     if (lockState === 1) {
-      let userPassword = window.prompt("Enter the password:");
+      const userPassword = window.prompt("Enter the password:");
       if (userPassword === password) {
-        alert("Password is correct! Proceeding...");
+        alert("Correct! Proceeding...");
         dispatch(toggleLockAction(lockState === 1 ? 0 : 1));
         setLockState((prevState) => (prevState === 1 ? 0 : 1));
       } else {
@@ -68,6 +74,7 @@ const Filter = () => {
   };
 
   const handlePrint = () => {
+    console.log("lastweekenddate___", lastWeekEndDate);
     dispatch(getUpdatedLockDateAction(1, lastWeekEndDate));
     window.print();
   };
@@ -76,7 +83,7 @@ const Filter = () => {
     if (getlockstateLoading === false) {
       setLockState(getlockstate[0].lock_status);
     }
-  }, [getlockstateLoading]);
+  }, [getlockstateLoading, getlockeddateLoading]);
 
   useEffect(() => {
     dispatch(getLockedStateAction());

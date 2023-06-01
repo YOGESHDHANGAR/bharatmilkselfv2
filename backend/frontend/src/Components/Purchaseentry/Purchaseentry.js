@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import ReactDOM from "react-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector, useDispatch } from "react-redux";
@@ -15,7 +16,26 @@ import { getAllCustomerAction } from "../../Redux/actions/customerActions";
 import { getFatRateAction } from "../../Redux/actions/fatRateActions";
 import MetaData from "../MetaData/MetaData";
 
+const ModalRoot = ({ children }) => {
+  return ReactDOM.createPortal(
+    <div className="modal-overlay">{children}</div>,
+    document.body
+  );
+};
+
+const Modal = ({ onClose, children }) => {
+  return (
+    <div>
+      <button className="modal-close" onClick={onClose}>
+        X
+      </button>
+      <div className="modal-content">{children}</div>
+    </div>
+  );
+};
+
 const Purchaseentry = () => {
+  const modalRef = useRef(null);
   const showErrorToast = (message) => {
     toast.error(message, {
       autoClose: 5000,
@@ -23,15 +43,6 @@ const Purchaseentry = () => {
   };
   const inputRef = useRef(null);
   const dispatch = useDispatch();
-
-  const showDateOnceRightFormat = () => {
-    const currentDate = new Date();
-    const day = String(currentDate.getDate()).padStart(2, "0");
-    const month = String(currentDate.getMonth() + 1).padStart(2, "0");
-    const year = currentDate.getFullYear();
-    const formattedDate = `${day}-${month}-${year}`;
-    return formattedDate;
-  };
 
   const {
     getlatestpurchaseserial,
@@ -79,6 +90,8 @@ const Purchaseentry = () => {
   const [purchaseDate, setPurchaseDate] = useState(
     new Date().toJSON().slice(0, 10)
   );
+
+  const [showModal, setShowModal] = useState(true);
   const [purchaseSerial, setPurchaseSerial] = useState(0);
   const [customerId, setCustomerId] = useState(0);
   const [customerName, setCustomerName] = useState("");
@@ -90,8 +103,16 @@ const Purchaseentry = () => {
   const [milkRate, setMilkRate] = useState(0);
   const [milkAmount, setMilkAmount] = useState(0);
   const [successBlink, setSuccessBlink] = useState(false);
-  const [showDateOnce, setShowDateOnce] = useState(true);
   const [returnObjectState, setReturnObjectState] = useState({});
+
+  const handleCloseModal = (e) => {
+    setShowModal(false);
+  };
+  const handleCloseModalKeyEvent = (e) => {
+    if (e.key === "Enter") {
+      setShowModal(false);
+    }
+  };
 
   const handleSerialNumber = (e) => {
     setPurchaseSerial(e.target.value);
@@ -268,6 +289,9 @@ const Purchaseentry = () => {
   };
 
   useEffect(() => {
+    modalRef.current.focus();
+  }, []);
+  useEffect(() => {
     dispatch(getLatestPurchaseSerialAction());
     dispatch(getAllCustomerAction());
     dispatch(getFatRateAction());
@@ -319,12 +343,6 @@ const Purchaseentry = () => {
       setSuccessBlink(false);
     }, 800);
   });
-
-  useEffect(() => {
-    setTimeout(() => {
-      setShowDateOnce(false);
-    }, 3000);
-  }, [showDateOnce]);
 
   useEffect(() => {
     if (singlepurchaseLoading === false && singlepurchase.length > 0) {
@@ -385,11 +403,26 @@ const Purchaseentry = () => {
   return (
     <div>
       <MetaData title="Purchase_Entry" />
-      {showDateOnce === true && (
-        <div className="show_date_once">
-          <h1>Selected Date: {showDateOnceRightFormat()}</h1>
-        </div>
-      )}
+      <div>
+        {showModal && (
+          <ModalRoot>
+            <Modal onClose={handleCloseModal}>
+              <div className="modal_purchaseentry_date_lable_div">
+                <label className="modal_purchaseentry_date_lable">
+                  Date:
+                  <input
+                    ref={modalRef}
+                    onKeyDown={handleCloseModalKeyEvent}
+                    type="date"
+                    value={purchaseDate}
+                    onChange={(e) => handleDate(e)}
+                  />
+                </label>
+              </div>
+            </Modal>
+          </ModalRoot>
+        )}
+      </div>
       {createpurchase.affectedRows === 1 && createpurchaseLoading === false && (
         <div className="purchaseentry_showlastentry">
           <div className="purchaseentry_showlastentry_topic">

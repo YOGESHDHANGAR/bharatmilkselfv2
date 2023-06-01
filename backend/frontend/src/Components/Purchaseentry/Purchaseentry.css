@@ -195,23 +195,28 @@
   font-weight: 200;
 }
 
-.show_date_once {
+.modal-content {
+  margin: 0;
+}
+.modal_purchaseentry_date_lable_div {
   display: flex;
   justify-content: center;
-  color: red;
+  align-items: center;
+  background-color: rgb(246, 127, 0);
+  height: 5vmax;
+  border-radius: 20px;
+  padding: 0 25px;
 }
 
-.show_date_once > h1 {
-  animation: animate 1.5s linear infinite;
+.modal_purchaseentry_date_lable {
+  font-size: 1.5vmax;
+  color: white;
 }
-@keyframes animate {
-  0% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 0.7;
-  }
-  100% {
-    opacity: 0;
-  }
+
+.modal_purchaseentry_date_lable > input {
+  background-color: rgb(246, 127, 0);
+  margin-left: 20px;
+  color: white;
+  font-size: 1.5vmax;
+  outline-style: none;
 }

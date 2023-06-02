@@ -35,7 +35,6 @@ const Modal = ({ onClose, children }) => {
 };
 
 const Purchaseentry = () => {
-  const modalRef = useRef(null);
   const showErrorToast = (message) => {
     toast.error(message, {
       autoClose: 5000,
@@ -110,6 +109,12 @@ const Purchaseentry = () => {
   };
   const handleCloseModalKeyEvent = (e) => {
     if (e.key === "Enter") {
+      setShowModal(false);
+    }
+  };
+
+  const handleCloseModalKeyEventForShift = (e) => {
+    if (e.key === "Tab") {
       setShowModal(false);
     }
   };
@@ -289,9 +294,6 @@ const Purchaseentry = () => {
   };
 
   useEffect(() => {
-    modalRef.current.focus();
-  }, []);
-  useEffect(() => {
     dispatch(getLatestPurchaseSerialAction());
     dispatch(getAllCustomerAction());
     dispatch(getFatRateAction());
@@ -411,7 +413,9 @@ const Purchaseentry = () => {
                 <label className="modal_purchaseentry_date_lable">
                   Date:
                   <input
-                    ref={modalRef}
+                    ref={inputRef}
+                    tabIndex={1}
+                    autoFocus
                     onKeyDown={handleCloseModalKeyEvent}
                     type="date"
                     value={purchaseDate}
@@ -424,8 +428,8 @@ const Purchaseentry = () => {
                     className={`customer_shift_select ${
                       purchaseShift === "Morning" ? "morning" : "evening"
                     }`}
-                    onKeyDown={handleCloseModalKeyEvent}
-                    name="select_shift"
+                    tabIndex={2}
+                    onKeyDown={handleCloseModalKeyEventForShift}
                     value={purchaseShift}
                     onChange={(e) => handleShift(e)}
                   >
@@ -484,9 +488,7 @@ const Purchaseentry = () => {
           <label className="purchaseentry_serialno_lable">
             Serial No.:
             <input
-              ref={inputRef}
-              tabIndex={1}
-              autoFocus
+              tabIndex={3}
               type="number"
               value={purchaseSerial}
               onChange={(e) => handleSerialNumber(e)}
@@ -507,7 +509,7 @@ const Purchaseentry = () => {
             Customer ID:
             <select
               className="customerid_name_select"
-              tabIndex={3}
+              tabIndex={5}
               name="select_customerid"
               value={customerId}
               onChange={(e) => handleCustomerID(e)}
@@ -522,7 +524,7 @@ const Purchaseentry = () => {
             Customer Name:
             <select
               className="customer_name_select"
-              tabIndex={4}
+              tabIndex={6}
               name="select_name"
               value={customerName}
               onChange={(e) => handleCustomerName(e)}
@@ -540,7 +542,7 @@ const Purchaseentry = () => {
               className={`customer_shift_select ${
                 purchaseShift === "Morning" ? "morning" : "evening"
               }`}
-              tabIndex={5}
+              tabIndex={7}
               name="select_shift"
               value={purchaseShift}
               onChange={(e) => handleShift(e)}
@@ -570,7 +572,7 @@ const Purchaseentry = () => {
           <label className="purchaseentry_quantity_lable">
             Quantity:
             <input
-              tabIndex={7}
+              tabIndex={9}
               type="number"
               step={0.1}
               value={milkQuantity}
@@ -583,7 +585,7 @@ const Purchaseentry = () => {
           <label className="purchaseentry_fat_lable">
             Fat:
             <input
-              tabIndex={8}
+              tabIndex={10}
               type="number"
               step={0.1}
               value={milkFat}
@@ -598,7 +600,7 @@ const Purchaseentry = () => {
           <label className="purchaseentry_clr_lable">
             CLR:
             <input
-              tabIndex={9}
+              tabIndex={11}
               type="number"
               value={milkClr}
               onChange={(e) => handleClr(e)}
@@ -637,7 +639,7 @@ const Purchaseentry = () => {
 
         <div className="purchaseentry_save_update_refresh_delete">
           <input
-            tabIndex={12}
+            tabIndex={14}
             onKeyDown={hadleTabAfterSave}
             className="save_input"
             type="submit"

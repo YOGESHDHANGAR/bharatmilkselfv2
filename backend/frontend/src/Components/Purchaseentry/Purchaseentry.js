@@ -418,6 +418,21 @@ const Purchaseentry = () => {
                     onChange={(e) => handleDate(e)}
                   />
                 </label>
+                <label className="modal_purchaseentry_shift_lable">
+                  Shift:
+                  <select
+                    className={`customer_shift_select ${
+                      purchaseShift === "Morning" ? "morning" : "evening"
+                    }`}
+                    onKeyDown={handleCloseModalKeyEvent}
+                    name="select_shift"
+                    value={purchaseShift}
+                    onChange={(e) => handleShift(e)}
+                  >
+                    <option value="Morning">Morning</option>
+                    <option value="Evening">Evening</option>
+                  </select>
+                </label>
               </div>
             </Modal>
           </ModalRoot>

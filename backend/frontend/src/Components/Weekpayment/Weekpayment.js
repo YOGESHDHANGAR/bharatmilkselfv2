@@ -8,6 +8,7 @@ import Weekpaymentheader from "./Weekpaymentheader";
 import { useSelector, useDispatch } from "react-redux";
 import {
   clearErrors,
+  customerWisePurchaseOutliersAction,
   weekWisePurchaseAction,
 } from "../../Redux/actions/purchaseActions";
 import Box from "@mui/material/Box";

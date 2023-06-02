@@ -6,9 +6,9 @@ const {
   singlePurchase,
   updatePurchase,
   deletePurchase,
-  customerWisePurchaseForSecondLastWeek,
   customerWisePurchase,
   getLatestPurchaseSerial,
+  customerWisePurchaseOutliers,
 } = require("../controllers/purchaseController");
 
 const router = express.Router();
@@ -25,9 +25,7 @@ router.route("/singlepurchase").get(singlePurchase);
 
 router.route("/customerwisepurchase").get(customerWisePurchase);
 
-router
-  .route("/customerwisepurchaseforsecondlastweek")
-  .get(customerWisePurchaseForSecondLastWeek);
+router.route("/customerwisepurchaseoutliers").get(customerWisePurchaseOutliers);
 
 router.route("/updatepurchase").put(updatePurchase);
 

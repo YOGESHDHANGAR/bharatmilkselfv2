@@ -11,10 +11,13 @@ import Box from "@mui/material/Box";
 import {
   clearErrors,
   customerWisePurchaseAction,
+  customerWisePurchaseOutliersAction,
 } from "../../Redux/actions/purchaseActions";
 import ReactDOM from "react-dom";
 import Purchaseentry from "../Purchaseentry/Purchaseentry";
 import MetaData from "../MetaData/MetaData";
+
+let needUpdate = false;
 
 const ModalRoot = ({ children }) => {
   return ReactDOM.createPortal(
@@ -58,6 +61,12 @@ const Customerwisepurchases = React.memo(() => {
     error: deletepurchaseError,
     loading: deletepurchaseLoading,
   } = useSelector((state) => state.deletepurchase);
+
+  const {
+    customerwisepurchaseoutliers,
+    loading: customerwisepurchaseoutliersLoading,
+    error: customerwisepurchaseoutliersError,
+  } = useSelector((state) => state.customerwisepurchaseoutliers);
 
   const [customerWisePurchaseState, setCustomerWisePurchase] =
     useState(customerwisepurchase);
@@ -114,6 +123,7 @@ const Customerwisepurchases = React.memo(() => {
 
   useEffect(() => {
     dispatch(customerWisePurchaseAction(1));
+    dispatch(customerWisePurchaseOutliersAction(1));
   }, [dispatch]);
 
   useEffect(() => {
@@ -177,6 +187,15 @@ const Customerwisepurchases = React.memo(() => {
               </div>
             );
           } else {
+            needUpdate = false;
+            for (let i = 0; i < customerwisepurchaseoutliers.length; i++) {
+              if (
+                customerwisepurchaseoutliers[i].purchase_serial ===
+                elem.purchase_serial
+              ) {
+                needUpdate = true;
+              }
+            }
             return (
               <Customerwisepurchasescolumn
                 key={index}
@@ -195,6 +214,7 @@ const Customerwisepurchases = React.memo(() => {
                 milk_amount={elem.milk_amount}
                 handleUpdateEntryParent={handleUpdateEntryParent}
                 handleDeleteEntryParent={handleDeleteEntryParent}
+                needUpdate={needUpdate}
               />
             );
           }

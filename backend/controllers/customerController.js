@@ -61,6 +61,8 @@ exports.updateCustomer = (req, res, next) => {
 
   let updateCustomerNameInPurchase = `update purchase SET customer_name = "${formattedName}" where customer_id = ${customer_id}`;
 
+  let updateCustomerNameInPurchase_hub = `update purchase_hub SET customer_name = "${formattedName}" where customer_id = ${customer_id}`;
+
   con.query(`${defaultQuerry}`, (err, updatecustomer) => {
     if (err) {
       return next(new ErrorHandler(err.sqlMessage, 500));
@@ -70,10 +72,20 @@ exports.updateCustomer = (req, res, next) => {
         (err, updateCustomerNameInPurchaseResult) => {
           if (err) {
             return next(new ErrorHandler(err.sqlMessage, 500));
+          } else {
+            con.query(
+              `${updateCustomerNameInPurchase_hub}`,
+              (err, updateCustomerNameInPurchase_hubResult) => {
+                if (err) {
+                  return next(new ErrorHandler(err.sqlMessage, 500));
+                } else {
+                  res.send(updatecustomer);
+                }
+              }
+            );
           }
         }
       );
-      res.send(updatecustomer);
     }
   });
 };

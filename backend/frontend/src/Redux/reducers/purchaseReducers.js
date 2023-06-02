@@ -13,14 +13,11 @@ import {
   CUSTOMER_WISE_PURCHASE_SUCCESS,
   WEEK_WISE_PURCHASE_REQUEST,
   WEEK_WISE_PURCHASE_SUCCESS,
-  WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_REQUEST,
-  WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_SUCCESS,
-  CUSTOMER_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_REQUEST,
-  CUSTOMER_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_SUCCESS,
+  CUSTOMER_WISE_PURCHASE_OUTLIERS_REQUEST,
+  CUSTOMER_WISE_PURCHASE_OUTLIERS_SUCCESS,
   WEEK_WISE_PURCHASE_FAIL,
-  WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_FAIL,
   CUSTOMER_WISE_PURCHASE_FAIL,
-  CUSTOMER_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_FAIL,
+  CUSTOMER_WISE_PURCHASE_OUTLIERS_FAIL,
   CREATE_PURCHASE_FAIL,
   ALL_PURCHASE_FAIL,
   SINGLE_PURCHASE_FAIL,
@@ -274,40 +271,6 @@ export const weekWisePurchaseReducer = (
   }
 };
 
-export const weekWisePurchaseForSecondLastWeekReducer = (
-  state = { weekwisepurchaseforsecondlastweek: [] },
-  action
-) => {
-  switch (action.type) {
-    case WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_REQUEST:
-      return {
-        ...state,
-        loading: true,
-      };
-
-    case WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        weekwisepurchaseforsecondlastweek: action.payload,
-      };
-    case WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_FAIL:
-      return {
-        ...state,
-        loading: false,
-        error: action.payload,
-      };
-    case CLEAR_ERRORS:
-      return {
-        ...state,
-        error: null,
-      };
-
-    default:
-      return state;
-  }
-};
-
 export const customerWisePurchaseReducer = (
   state = { customerwisepurchase: [] },
   action
@@ -342,24 +305,24 @@ export const customerWisePurchaseReducer = (
   }
 };
 
-export const customerWisePurchaseForSecondLastWeekReducer = (
-  state = { customerwisepurchaseforsecondlastweek: [] },
+export const customerWisePurchaseOutliersActionReducer = (
+  state = { customerwisepurchaseoutliers: [] },
   action
 ) => {
   switch (action.type) {
-    case CUSTOMER_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_REQUEST:
+    case CUSTOMER_WISE_PURCHASE_OUTLIERS_REQUEST:
       return {
         ...state,
         loading: true,
       };
 
-    case CUSTOMER_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_SUCCESS:
+    case CUSTOMER_WISE_PURCHASE_OUTLIERS_SUCCESS:
       return {
         ...state,
         loading: false,
-        customerwisepurchaseforsecondlastweek: action.payload,
+        customerwisepurchaseoutliers: action.payload,
       };
-    case CUSTOMER_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_FAIL:
+    case CUSTOMER_WISE_PURCHASE_OUTLIERS_FAIL:
       return {
         ...state,
         loading: false,

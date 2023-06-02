@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import "./Customerwisepurchasesfilter.css";
 import "react-datepicker/dist/react-datepicker.css";
 import { useDispatch } from "react-redux";
-import { customerWisePurchaseAction } from "../../Redux/actions/purchaseActions";
+import {
+  customerWisePurchaseAction,
+  customerWisePurchaseOutliersAction,
+} from "../../Redux/actions/purchaseActions";
 import lastWeekDates from "../../utils/lastWeekDates";
 
 const Customerwisepurchasesfilter = () => {
@@ -44,6 +47,7 @@ const Customerwisepurchasesfilter = () => {
       alert("Please select valid date");
     }
     dispatch(customerWisePurchaseAction(1, fromDate, toDate));
+    dispatch(customerWisePurchaseOutliersAction(1, fromDate, toDate));
   };
 
   return (

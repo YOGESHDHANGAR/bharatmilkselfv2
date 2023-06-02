@@ -4,6 +4,7 @@ import { composeWithDevTools } from "redux-devtools-extension";
 import {
   createPurchaseReducer,
   customerWisePurchaseForSecondLastWeekReducer,
+  customerWisePurchaseOutliersActionReducer,
   customerWisePurchaseReducer,
   getAllPurchaseReducer,
   getLatestPurchaseSerialReducer,
@@ -44,10 +45,8 @@ const reducer = combineReducers({
   getlatestpurchaseserial: getLatestPurchaseSerialReducer,
   allpurchases: getAllPurchaseReducer,
   weekwisepurchase: weekWisePurchaseReducer,
-  weekwisepurchaseforsecondlastweek: weekWisePurchaseForSecondLastWeekReducer,
   customerwisepurchase: customerWisePurchaseReducer,
-  customerwisepurchaseforsecondlastweek:
-    customerWisePurchaseForSecondLastWeekReducer,
+  customerwisepurchaseoutliers: customerWisePurchaseOutliersActionReducer,
   singlepurchase: singlePurchaseReducer,
   updatepurchase: updatePurchaseReducer,
   deletepurchase: deletePurchaseReducer,

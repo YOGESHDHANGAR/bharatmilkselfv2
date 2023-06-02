@@ -25,7 +25,9 @@ const Customerwisepurchasescolumn = (props) => {
   return (
     <div
       style={
-        props.count % 2 == 0
+        props.needUpdate === true
+          ? { backgroundColor: "red" }
+          : props.count % 2 == 0
           ? { backgroundColor: "#F7F7F7" }
           : { backgroundColor: "#fff" }
       }

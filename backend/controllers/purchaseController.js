@@ -330,35 +330,6 @@ exports.customerWisePurchase = (req, res, next) => {
   });
 };
 
-exports.customerWisePurchaseForSecondLastWeek = (req, res, next) => {
-  const currentDate = new Date().toJSON().slice(0, 10);
-  const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(currentDate, 2);
-  let secondLastWeekStartDate = lastWeekStartDate;
-  let secondLastWeekEndDate = lastWeekEndDate;
-
-  let fromDate = secondLastWeekStartDate;
-  let toDate = secondLastWeekEndDate;
-  const fromDateQuery = req.query.fromDate;
-  const toDateQuery = req.query.toDate;
-
-  if (fromDateQuery && toDateQuery) {
-    fromDate = fromDateQuery;
-    toDate = toDateQuery;
-  }
-  let defaultQuerryfrosecondlastweek = `select * from purchase where purchase_active_or_not=${1} and purchase_date>="${fromDate}" and purchase_date<="${toDate}" order by customer_id, customer_name, purchase_date, purchase_shift`;
-
-  con.query(
-    `${defaultQuerryfrosecondlastweek}`,
-    (err, customerwisepurchaseforsecondlastweek) => {
-      if (err) {
-        return next(new ErrorHandler(err.sqlMessage, 500));
-      } else {
-        res.send(customerwisepurchaseforsecondlastweek);
-      }
-    }
-  );
-};
-
 exports.singlePurchase = (req, res, next) => {
   const purchase_serial = req.query.purchase_serial;
 
@@ -477,6 +448,61 @@ exports.deletePurchase = async (req, res, next) => {
       return next(new ErrorHandler(err.sqlMessage, 500));
     } else {
       res.send(deletepurchase);
+    }
+  });
+};
+
+const performOutlierDetection = (data) => {
+  const stats = require("simple-statistics");
+
+  // Extract the milk quantity and milk amount from the data
+  const samples = data.map((row) => [row.milk_quantity, row.milk_amount]);
+
+  // Calculate mean and standard deviation for each attribute
+  const means = samples[0].map((_, i) =>
+    stats.mean(samples.map((sample) => sample[i]))
+  );
+  const stdevs = samples[0].map((_, i) =>
+    stats.standardDeviation(samples.map((sample) => sample[i]))
+  );
+
+  // Set a threshold to determine outliers (adjust as needed)
+  const threshold = 2;
+
+  // Filter the data to include outliers only
+  const outliers = data.filter((row, index) => {
+    const [milkQuantity, milkAmount] = samples[index];
+    const zScore1 = (milkQuantity - means[0]) / stdevs[0];
+    const zScore2 = (milkAmount - means[1]) / stdevs[1];
+    return zScore1 > threshold || zScore2 > threshold;
+  });
+
+  // Return the detected outliers
+  return outliers;
+};
+
+exports.customerWisePurchaseOutliers = (req, res, next) => {
+  const currentDate = new Date().toJSON().slice(0, 10);
+  const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(currentDate, 1);
+
+  let fromDate = lastWeekStartDate;
+  let toDate = lastWeekEndDate;
+  const fromDateQuery = req.query.fromDate;
+  const toDateQuery = req.query.toDate;
+
+  if (fromDateQuery && toDateQuery) {
+    fromDate = fromDateQuery;
+    toDate = toDateQuery;
+  }
+  const defaultQuerry = `select * from purchase_hub where purchase_active_or_not=${1} and purchase_date>= "${fromDate}" and purchase_date<="${toDate}" order by customer_id, purchase_shift`;
+
+  con.query(`${defaultQuerry}`, (err, result) => {
+    if (err) {
+      return next(new ErrorHandler(err.sqlMessage, 500));
+    } else {
+      const customerWisePurchaseOutliersResult =
+        performOutlierDetection(result);
+      res.send(customerWisePurchaseOutliersResult);
     }
   });
 };

@@ -2,10 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./Weekpaymentfilter.css";
 import "react-datepicker/dist/react-datepicker.css";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  weekWisePurchaseAction,
-  weekWisePurchaseForSecondLastWeekAction,
-} from "../../Redux/actions/purchaseActions";
+import { weekWisePurchaseAction } from "../../Redux/actions/purchaseActions";
 import lastWeekDates from "../../utils/lastWeekDates";
 import {
   getLockedStateAction,

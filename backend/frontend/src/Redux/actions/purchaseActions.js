@@ -20,13 +20,10 @@ import {
   CUSTOMER_WISE_PURCHASE_REQUEST,
   WEEK_WISE_PURCHASE_SUCCESS,
   WEEK_WISE_PURCHASE_REQUEST,
-  WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_REQUEST,
-  WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_SUCCESS,
-  CUSTOMER_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_REQUEST,
-  CUSTOMER_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_SUCCESS,
-  CUSTOMER_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_FAIL,
+  CUSTOMER_WISE_PURCHASE_OUTLIERS_REQUEST,
+  CUSTOMER_WISE_PURCHASE_OUTLIERS_SUCCESS,
+  CUSTOMER_WISE_PURCHASE_OUTLIERS_FAIL,
   WEEK_WISE_PURCHASE_FAIL,
-  WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_FAIL,
   CLEAR_ERRORS,
   GET_LATEST_PURCHASE_SERIAL_REQUEST,
   GET_LATEST_PURCHASE_SERIAL_SUCCESS,
@@ -235,35 +232,6 @@ export const weekWisePurchaseAction =
     }
   };
 
-//weekwise purchase for second last week
-export const weekWisePurchaseForSecondLastWeekAction =
-  (fromDate, toDate) => async (dispatch) => {
-    try {
-      dispatch({ type: WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_REQUEST });
-
-      let link = `http://localhost:5000/api/v1/weekwisepurchaseforsecondlastweek?`;
-      if (fromDate) {
-        link = link + `fromDate=${fromDate}&`;
-      }
-      if (toDate) {
-        link = link + `toDate=${toDate}&`;
-      }
-      link = link.slice(0, -1);
-
-      const { data } = await axios.get(link);
-
-      dispatch({
-        type: WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_SUCCESS,
-        payload: data,
-      });
-    } catch (error) {
-      dispatch({
-        type: WEEK_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_FAIL,
-        payload: error.response.data.message,
-      });
-    }
-  };
-
 //Customerwise Purchase
 export const customerWisePurchaseAction =
   (noOfWeeks, fromDate, toDate) => async (dispatch) => {
@@ -324,14 +292,15 @@ export const customerWisePurchaseAction =
   };
 
 //customerwise purchse for second last week
-export const customerWisePurchaseForSecondLastWeekAction =
+export const customerWisePurchaseOutliersAction =
   (noOfWeeks, fromDate, toDate) => async (dispatch) => {
     try {
       dispatch({
-        type: CUSTOMER_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_REQUEST,
+        type: CUSTOMER_WISE_PURCHASE_OUTLIERS_REQUEST,
       });
 
-      let link = `http://localhost:5000/api/v1/customerwisepurchaseforsecondlastweek?`;
+      let link = `http://localhost:5000/api/v1/customerwisepurchaseoutliers?`;
+
       if (fromDate) {
         link = link + `fromDate=${fromDate}&`;
       }
@@ -343,12 +312,12 @@ export const customerWisePurchaseForSecondLastWeekAction =
       const { data } = await axios.get(link);
 
       dispatch({
-        type: CUSTOMER_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_SUCCESS,
+        type: CUSTOMER_WISE_PURCHASE_OUTLIERS_SUCCESS,
         payload: data,
       });
     } catch (error) {
       dispatch({
-        type: CUSTOMER_WISE_PURCHASE_FOR_SECOND_LAST_WEEK_FAIL,
+        type: CUSTOMER_WISE_PURCHASE_OUTLIERS_FAIL,
         payload: error.response.purchase.message,
       });
     }

@@ -56,5 +56,6 @@
 }
 
 .home_column_checkbox {
+  margin-right: 20px;
   transform: scale(1.5);
 }

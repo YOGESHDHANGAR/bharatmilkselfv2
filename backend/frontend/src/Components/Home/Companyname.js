@@ -101,15 +101,6 @@ const Companyname = () => {
         </Link>
         <Link
           tabIndex={-1}
-          className={`weekpayment_navlink ${
-            location.pathname === "/weekpayment" ? "active" : ""
-          }`}
-          to="/weekpayment"
-        >
-          Week_Payment
-        </Link>
-        <Link
-          tabIndex={-1}
           className={`customerwise_navlink ${
             location.pathname === "/customerwisepurchases" ? "active" : ""
           }`}
@@ -117,6 +108,7 @@ const Companyname = () => {
         >
           Customer_Wise
         </Link>
+
         <Link
           tabIndex={-1}
           className={`customerwise_navlink ${
@@ -125,6 +117,15 @@ const Companyname = () => {
           to="/purchaseentry"
         >
           Purchase_Entry
+        </Link>
+        <Link
+          tabIndex={-1}
+          className={`weekpayment_navlink ${
+            location.pathname === "/weekpayment" ? "active" : ""
+          }`}
+          to="/weekpayment"
+        >
+          Week_Payment
         </Link>
         <Link
           tabIndex={-1}

@@ -59,7 +59,7 @@
 }
 
 .active {
-  font-size: 1.4vmax;
+  font-size: 1.2vmax;
   box-shadow: 0 0 3px 2px rgb(135, 167, 216);
   border-radius: 5px;
   padding: 2px;

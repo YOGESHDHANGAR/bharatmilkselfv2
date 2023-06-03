@@ -39,12 +39,12 @@ function App() {
       <Companyname />
       <Routes>
         <Route exact path="/" element={<Home />} />
-        <Route exact path="/weekpayment" element={<Weekpayment />} />
         <Route
           exact
           path="/customerwisepurchases"
           element={<Customerwisepurchases />}
         />
+        <Route exact path="/weekpayment" element={<Weekpayment />} />
         <Route exact path="/purchaseentry" element={<Purchaseentry />} />
         <Route exact path="/customerentry" element={<Customerentry />} />
       </Routes>

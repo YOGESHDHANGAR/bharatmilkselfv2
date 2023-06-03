@@ -75,6 +75,33 @@ const Customerwisepurchases = React.memo(() => {
 
   const [selectedPurchaseSerial, setSelectedPurchaseSerial] = useState(null);
 
+  const [storedArrayInParent, setStoredArrayInParent] = useState([]);
+
+  const handleToggleFromParent = (customer_id) => {
+    const containsOrNot = storedArrayInParent.includes(customer_id);
+    const updatedArray = containsOrNot
+      ? storedArrayInParent.filter((item) => item !== customer_id)
+      : [...storedArrayInParent, customer_id];
+
+    setStoredArrayInParent(updatedArray);
+  };
+
+  useEffect(() => {
+    const storedArray = localStorage.getItem(
+      "customerwisepurchase_markedEntriesArray"
+    );
+    if (storedArray) {
+      setStoredArrayInParent(JSON.parse(storedArray));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "customerwisepurchase_markedEntriesArray",
+      JSON.stringify(storedArrayInParent)
+    );
+  }, [storedArrayInParent]);
+
   const handleOpenModal = () => {
     setShowModal(true);
   };
@@ -199,6 +226,7 @@ const Customerwisepurchases = React.memo(() => {
             return (
               <Customerwisepurchasescolumn
                 key={index}
+                count={index}
                 counter={counter++}
                 individualCounter={individualCounter++}
                 purchase_serial={elem.purchase_serial}
@@ -215,6 +243,12 @@ const Customerwisepurchases = React.memo(() => {
                 handleUpdateEntryParent={handleUpdateEntryParent}
                 handleDeleteEntryParent={handleDeleteEntryParent}
                 needUpdate={needUpdate}
+                handleToggleFromParent={() => {
+                  handleToggleFromParent(elem.purchase_serial);
+                }}
+                markedEntryOrNot={storedArrayInParent.includes(
+                  elem.purchase_serial
+                )}
               />
             );
           }

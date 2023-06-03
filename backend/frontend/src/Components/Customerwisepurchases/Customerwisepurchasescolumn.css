@@ -112,17 +112,7 @@
   right: 2px;
 }
 
-.red-circle {
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  text-align: center;
-  line-height: 60px;
-  vertical-align: middle;
-  padding: 5px;
-  font-size: 60px;
-  color: red;
-  transition: 0.2s;
-  background-color: white;
-  border: 3px solid red;
+.customerwisepurchasescolumn_checkbox {
+  margin-left: 40px;
+  transform: scale(1.5);
 }

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Filter from "./Filter";
@@ -38,6 +38,31 @@ const Home = () => {
     borderColor: "black",
     width: "100vw",
   };
+
+  const [storedArrayInParent, setStoredArrayInParent] = useState([]);
+
+  const handleToggleFromParent = (purchase_serial) => {
+    const containsOrNot = storedArrayInParent.includes(purchase_serial);
+    const updatedArray = containsOrNot
+      ? storedArrayInParent.filter((item) => item !== purchase_serial)
+      : [...storedArrayInParent, purchase_serial];
+
+    setStoredArrayInParent(updatedArray);
+  };
+
+  useEffect(() => {
+    const storedArray = localStorage.getItem("home_markedEntriesArray");
+    if (storedArray) {
+      setStoredArrayInParent(JSON.parse(storedArray));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "home_markedEntriesArray",
+      JSON.stringify(storedArrayInParent)
+    );
+  }, [storedArrayInParent]);
 
   useEffect(() => {
     dispatch(getAllPurchaseAction());
@@ -83,6 +108,12 @@ const Home = () => {
               milk_rate={elem.milk_rate}
               milk_clr={elem.milk_clr}
               milk_amount={elem.milk_amount}
+              handleToggleFromParent={() => {
+                handleToggleFromParent(elem.purchase_serial);
+              }}
+              markedEntryOrNot={storedArrayInParent.includes(
+                elem.purchase_serial
+              )}
             />
           );
         })

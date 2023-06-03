@@ -76,6 +76,11 @@ const Filter = () => {
     window.print();
   };
 
+  const handleClearLocalStorage = () => {
+    localStorage.removeItem("weekpayment_markedEntriesArray");
+    window.location.reload();
+  };
+
   useEffect(() => {
     if (getlockstateLoading === false) {
       setLockState(getlockstate[0].lock_status);
@@ -112,6 +117,12 @@ const Filter = () => {
         type="button"
         value="Print"
         onClick={handlePrint}
+      />
+      <input
+        className="clear_input"
+        type="button"
+        value="Clear Marks"
+        onClick={handleClearLocalStorage}
       />
       <div className="lock_unlock_switch">
         <Switch

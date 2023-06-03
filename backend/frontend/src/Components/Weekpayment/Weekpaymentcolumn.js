@@ -29,6 +29,7 @@ const Weekpaymentcolumn = (props) => {
         type="checkbox"
         onChange={props.handleToggleFromParent}
         checked={props.markedEntryOrNot}
+        className="weekpayment_column_checkbox"
       />
     </div>
   );

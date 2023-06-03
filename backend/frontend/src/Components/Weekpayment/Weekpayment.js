@@ -52,7 +52,7 @@ const Weekpayment = () => {
   };
 
   useEffect(() => {
-    const storedArray = localStorage.getItem("markedEntriesArray");
+    const storedArray = localStorage.getItem("weekpayment_markedEntriesArray");
     if (storedArray) {
       setStoredArrayInParent(JSON.parse(storedArray));
     }
@@ -60,7 +60,7 @@ const Weekpayment = () => {
 
   useEffect(() => {
     localStorage.setItem(
-      "markedEntriesArray",
+      "weekpayment_markedEntriesArray",
       JSON.stringify(storedArrayInParent)
     );
   }, [storedArrayInParent]);

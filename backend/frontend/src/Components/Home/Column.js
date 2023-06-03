@@ -2,15 +2,13 @@ import React from "react";
 import "./Column.css";
 
 const Column = React.memo((props) => {
+  const backgroundColor = props.markedEntryOrNot
+    ? "#e490e8"
+    : props.count % 2 === 0
+    ? "#fff"
+    : "#F7F7F7";
   return (
-    <div
-      style={
-        props.count % 2 == 0
-          ? { backgroundColor: "#F7F7F7" }
-          : { backgroundColor: "#fff" }
-      }
-      className="home_column_container"
-    >
+    <div style={{ backgroundColor }} className="home_column_container">
       <div className="home_column_count_lable">
         <h3>{props.count + 1}</h3>
       </div>
@@ -54,6 +52,12 @@ const Column = React.memo((props) => {
       <div className="home_column_amount_lable">
         <h3>₹ {props.milk_amount.toFixed(2)}</h3>
       </div>
+      <input
+        type="checkbox"
+        onChange={props.handleToggleFromParent}
+        checked={props.markedEntryOrNot}
+        className="home_column_checkbox"
+      />
     </div>
   );
 });

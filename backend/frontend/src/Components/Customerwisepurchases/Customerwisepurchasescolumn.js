@@ -6,6 +6,12 @@ import { deletePurchaseAction } from "../../Redux/actions/purchaseActions";
 const Customerwisepurchasescolumn = (props) => {
   const dispatch = useDispatch();
 
+  const backgroundColor = props.markedEntryOrNot
+    ? "#e490e8"
+    : props.counter % 2 === 0
+    ? "#fff"
+    : "#F7F7F7";
+
   const handleDeleteEntry = () => {
     let result = window.confirm("Are you sure wants to delete?");
     if (result) {
@@ -27,9 +33,7 @@ const Customerwisepurchasescolumn = (props) => {
       style={
         props.needUpdate === true
           ? { backgroundColor: "rgb(237, 210, 210)" }
-          : props.count % 2 == 0
-          ? { backgroundColor: "#F7F7F7" }
-          : { backgroundColor: "#fff" }
+          : { backgroundColor }
       }
     >
       <div className="Customerwisepurchases_column_container">
@@ -96,6 +100,12 @@ const Customerwisepurchasescolumn = (props) => {
             onClick={handleUpdateEntry}
             value="Upd"
           /> */}
+          <input
+            className="customerwisepurchasescolumn_checkbox"
+            type="checkbox"
+            onChange={props.handleToggleFromParent}
+            checked={props.markedEntryOrNot}
+          />
         </div>
       </div>
     </div>

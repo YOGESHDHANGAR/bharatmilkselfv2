@@ -64,6 +64,13 @@
   font-size: 16px;
 }
 
+.clear_input {
+  border-style: none;
+  width: 8vmax;
+  height: 23px;
+  font-size: 16px;
+}
+
 .submit_input:hover {
   color: white;
   background-color: black;

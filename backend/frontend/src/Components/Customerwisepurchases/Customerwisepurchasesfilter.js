@@ -50,6 +50,11 @@ const Customerwisepurchasesfilter = () => {
     dispatch(customerWisePurchaseOutliersAction(1, fromDate, toDate));
   };
 
+  const handleClearLocalStorage = () => {
+    localStorage.removeItem("customerwisepurchase_markedEntriesArray");
+    window.location.reload();
+  };
+
   return (
     <form className="filter_container" onSubmit={handleSubmit}>
       <label className="fromdate_lable">
@@ -71,6 +76,12 @@ const Customerwisepurchasesfilter = () => {
         />
       </label>
       <input className="submit_input" type="submit" value="Submit" />
+      <input
+        className="clear_input"
+        type="button"
+        value="Clear Marks"
+        onClick={handleClearLocalStorage}
+      />
     </form>
   );
 };

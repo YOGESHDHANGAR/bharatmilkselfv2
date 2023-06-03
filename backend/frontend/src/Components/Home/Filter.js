@@ -86,6 +86,11 @@ const Filter = (props) => {
     );
   };
 
+  const handleClearLocalStorage = () => {
+    localStorage.removeItem("home_markedEntriesArray");
+    window.location.reload();
+  };
+
   return (
     <form className="filter_container" onSubmit={handleSubmit}>
       <label className="customerid_lable">
@@ -142,6 +147,12 @@ const Filter = (props) => {
         </select>
       </label>
       <input className="submit_input" type="submit" value="Submit" />
+      <input
+        className="clear_input"
+        type="button"
+        value="Clear Marks"
+        onClick={handleClearLocalStorage}
+      />
     </form>
   );
 };

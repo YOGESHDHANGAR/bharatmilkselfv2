@@ -24,3 +24,7 @@
 .weekpayment_column_amount_lable {
   flex: 0.1;
 }
+
+.weekpayment_column_checkbox {
+  transform: scale(1.5);
+}

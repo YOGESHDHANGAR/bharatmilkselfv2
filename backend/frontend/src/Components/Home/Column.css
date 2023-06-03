@@ -54,3 +54,7 @@
 .home_column_amount_lable {
   flex: 0.6;
 }
+
+.home_column_checkbox {
+  transform: scale(1.5);
+}

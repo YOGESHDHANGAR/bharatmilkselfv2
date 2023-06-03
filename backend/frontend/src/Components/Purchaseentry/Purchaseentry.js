@@ -279,12 +279,12 @@ const Purchaseentry = () => {
     myForm.set("milk_amount", milkAmount);
 
     dispatch(updatePurchaseAction(purchaseSerial, myForm));
-    hardResetStates();
+    resetStates();
   };
 
   const handleDelete = () => {
     dispatch(deletePurchaseAction(purchaseSerial, purchaseDate));
-    hardResetStates();
+    resetStates();
   };
 
   const hadleTabAfterSave = (e) => {

@@ -243,14 +243,15 @@ const calculaeWeekWisePurchase = async (weekNumber, currentDate1) => {
           milk_amount
         FROM
           purchase
-        WHERE
-          purchase_date >= '${fromDate}' AND purchase_date <= '${toDate}'
+        WHERE 
+        purchase_active_or_not=${1} and
+        purchase_date >= '${fromDate}' AND purchase_date <= '${toDate}'
       ) AS p ON c.customer_id = p.customer_id
     WHERE
       c.customer_id IN (
         SELECT DISTINCT customer_id
         FROM purchase
-        WHERE purchase_date >= '${lastWeekStartDate}' AND purchase_date <= '${lastWeekEndDate}'
+        WHERE purchase_active_or_not=${1} and purchase_date >= '${lastWeekStartDate}' AND purchase_date <= '${lastWeekEndDate}'
       )
     GROUP BY
       c.customer_id,
@@ -462,6 +463,7 @@ const performOutlierDetection = (data) => {
   const means = samples[0].map((_, i) =>
     stats.mean(samples.map((sample) => sample[i]))
   );
+
   const stdevs = samples[0].map((_, i) =>
     stats.standardDeviation(samples.map((sample) => sample[i]))
   );
@@ -478,7 +480,48 @@ const performOutlierDetection = (data) => {
   });
 
   // Return the detected outliers
+  const insertQuery = `insert outliers_table(purchase_serial,purchase_date,customer_id,customer_name,purchase_shift,milk_type,milk_quantity,milk_fat,milk_clr,milk_rate,milk_amount,purchase_active_or_not,purchase_timestamp)VALUES ?`;
+  const values = outliers.map((outlier) => [
+    outlier.purchase_serial,
+    outlier.purchase_date,
+    outlier.customer_id,
+    outlier.customer_name,
+    outlier.purchase_shift,
+    outlier.milk_type,
+    outlier.milk_quantity,
+    outlier.milk_fat,
+    outlier.milk_clr,
+    outlier.milk_rate,
+    outlier.milk_amount,
+    outlier.purchase_active_or_not,
+    outlier.purchase_timestamp,
+  ]);
+
+  con.query(`${insertQuery}`, [values], (err, result) => {
+    if (err) {
+      // return next(new ErrorHandler(err.sqlMessage, 500));
+    } else {
+      // res.send(result);
+    }
+  });
   return outliers;
+};
+
+const performOutlierDetectionForPython = () => {
+  const { exec } = require("child_process");
+
+  const pythonScriptPath =
+    "D:\\YouTube\\SelfProject\\bharatmilkselfv2(plant)\\backend\\controllers\\outlier_detection.py";
+
+  exec(`python ${pythonScriptPath}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Python script execution error: ${error}`);
+    } else {
+      console.log(`Python script executed successfully.`);
+      console.log(`stdout: ${stdout}`);
+      // console.error(`stderr: ${stderr}`);
+    }
+  });
 };
 
 exports.customerWisePurchaseOutliers = (req, res, next) => {
@@ -494,15 +537,30 @@ exports.customerWisePurchaseOutliers = (req, res, next) => {
     fromDate = fromDateQuery;
     toDate = toDateQuery;
   }
-  const defaultQuerry = `select * from purchase_hub where purchase_active_or_not=${1} and purchase_date>= "${fromDate}" and purchase_date<="${toDate}" order by customer_id, purchase_shift`;
+
+  const queryForFindingOutliers = `select * from purchase_hub where purchase_active_or_not=${1} order by customer_id, purchase_shift`;
+  // const queryForFindingOutliers = `select * from purchase_hub where purchase_active_or_not=${1} and purchase_date>= "${fromDate}" and purchase_date<="${toDate}" order by customer_id, purchase_shift`;
+
+  con.query(
+    `${queryForFindingOutliers}`,
+    (err, queryForFindingOutliersResult) => {
+      if (err) {
+        return next(new ErrorHandler(err.sqlMessage, 500));
+      } else {
+        performOutlierDetection(queryForFindingOutliersResult);
+      }
+    }
+  );
+
+  // performOutlierDetectionForPython();
+
+  const defaultQuerry = `select * from outliers_table where purchase_active_or_not=${1} and purchase_date>= "${fromDate}" and purchase_date<="${toDate}"`;
 
   con.query(`${defaultQuerry}`, (err, result) => {
     if (err) {
       return next(new ErrorHandler(err.sqlMessage, 500));
     } else {
-      const customerWisePurchaseOutliersResult =
-        performOutlierDetection(result);
-      res.send(customerWisePurchaseOutliersResult);
+      res.send(result);
     }
   });
 };

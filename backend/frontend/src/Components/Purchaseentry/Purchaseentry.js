@@ -85,10 +85,8 @@ const Purchaseentry = () => {
   const { getfatrate, error: getfatrateError } = useSelector(
     (state) => state.getfatrate
   );
-
-  const [purchaseDate, setPurchaseDate] = useState(
-    new Date().toJSON().slice(0, 10)
-  );
+  const dateToday = new Date().toJSON().slice(0, 10);
+  const [purchaseDate, setPurchaseDate] = useState(dateToday);
 
   const [showModal, setShowModal] = useState(true);
   const [purchaseSerial, setPurchaseSerial] = useState(0);
@@ -248,7 +246,9 @@ const Purchaseentry = () => {
     myForm.set("milk_rate", milkRate);
     myForm.set("milk_amount", milkAmount);
 
-    if (!purchaseShift) {
+    if (purchaseDate > dateToday) {
+      alert("Date is greater than todays date");
+    } else if (!purchaseShift) {
       alert("Please Select Shift");
     } else if (!milkQuantity) {
       alert("Please Enter Quantity");
@@ -605,8 +605,8 @@ const Purchaseentry = () => {
               value={milkClr}
               onChange={(e) => handleClr(e)}
               onKeyDown={(e) => handleRateAndAmount(e)}
-              min="0"
-              max="32"
+              min="19"
+              max="30"
             />
           </label>
 

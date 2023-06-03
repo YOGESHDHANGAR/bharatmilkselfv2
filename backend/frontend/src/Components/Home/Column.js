@@ -50,6 +50,7 @@ const Column = React.memo((props) => {
       <div className="home_column_clr_lable">
         <h3>{props.milk_clr}</h3>
       </div>
+
       <div className="home_column_amount_lable">
         <h3>₹ {props.milk_amount.toFixed(2)}</h3>
       </div>

@@ -88,27 +88,26 @@ const Home = () => {
         })
       )}
       <>
-        {(allpurchasesLoadig === false && allpurchases !== undefined) ||
-          (allpurchases.length !== 0 && (
-            <div>
-              <Box sx={{ ...commonStyles, border: 0.3 }} />
-              <div className="home_totalling_Field">
-                <h3 className="home_totalMilk_Field">
-                  {totalQuantityAmountQueryResultofallpurchases[0].requiredTotalMilkQuantity.toFixed(
-                    1
-                  )}
-                  L
-                </h3>
-                <h3 className="home_total_Amount_Field">
-                  ₹
-                  {totalQuantityAmountQueryResultofallpurchases[0].requiredTotalMilkAmount.toFixed(
-                    2
-                  )}
-                </h3>
-              </div>
-              <Box sx={{ ...commonStyles, border: 1.6 }} />
+        {allpurchasesLoadig === false && allpurchases.length !== 0 && (
+          <div>
+            <Box sx={{ ...commonStyles, border: 0.3 }} />
+            <div className="home_totalling_Field">
+              <h3 className="home_totalMilk_Field">
+                {totalQuantityAmountQueryResultofallpurchases[0].requiredTotalMilkQuantity.toFixed(
+                  1
+                )}
+                L
+              </h3>
+              <h3 className="home_total_Amount_Field">
+                ₹
+                {totalQuantityAmountQueryResultofallpurchases[0].requiredTotalMilkAmount.toFixed(
+                  2
+                )}
+              </h3>
             </div>
-          ))}
+            <Box sx={{ ...commonStyles, border: 1.6 }} />
+          </div>
+        )}
       </>
       <ToastContainer />
     </div>

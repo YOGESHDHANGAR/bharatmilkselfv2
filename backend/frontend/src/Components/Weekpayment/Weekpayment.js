@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Weekpayment.css";
@@ -8,7 +8,6 @@ import Weekpaymentheader from "./Weekpaymentheader";
 import { useSelector, useDispatch } from "react-redux";
 import {
   clearErrors,
-  customerWisePurchaseOutliersAction,
   weekWisePurchaseAction,
 } from "../../Redux/actions/purchaseActions";
 import Box from "@mui/material/Box";
@@ -29,7 +28,9 @@ const Weekpayment = () => {
       autoClose: 5000,
     });
   };
+
   const dispatch = useDispatch();
+
   const {
     lastWeek1,
     lastWeek2,
@@ -38,6 +39,31 @@ const Weekpayment = () => {
     loading: weekwisepurchaseLoading,
     error: weekwisepurchaseError,
   } = useSelector((state) => state.weekwisepurchase);
+
+  const [storedArrayInParent, setStoredArrayInParent] = useState([]);
+
+  const handleToggleFromParent = (customer_id) => {
+    const containsOrNot = storedArrayInParent.includes(customer_id);
+    const updatedArray = containsOrNot
+      ? storedArrayInParent.filter((item) => item !== customer_id)
+      : [...storedArrayInParent, customer_id];
+
+    setStoredArrayInParent(updatedArray);
+  };
+
+  useEffect(() => {
+    const storedArray = localStorage.getItem("markedEntriesArray");
+    if (storedArray) {
+      setStoredArrayInParent(JSON.parse(storedArray));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "markedEntriesArray",
+      JSON.stringify(storedArrayInParent)
+    );
+  }, [storedArrayInParent]);
 
   useEffect(() => {
     dispatch(weekWisePurchaseAction());
@@ -81,6 +107,12 @@ const Weekpayment = () => {
                           purchase_shift={elem.purchase_shift}
                           milkTotalQuantity={elem.milkTotalQuantity}
                           milkTotalAmount={elem.milkTotalAmount}
+                          handleToggleFromParent={() => {
+                            handleToggleFromParent(elem.customer_id);
+                          }}
+                          markedEntryOrNot={storedArrayInParent.includes(
+                            elem.customer_id
+                          )}
                         />
                       );
                     }

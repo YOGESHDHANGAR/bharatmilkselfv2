@@ -41,6 +41,7 @@ const Purchaseentry = () => {
     });
   };
   const inputRef = useRef(null);
+  const modalRef = useRef(null);
   const dispatch = useDispatch();
 
   const {
@@ -314,6 +315,24 @@ const Purchaseentry = () => {
       setSuccessBlink(true);
       setPurchaseSerial(Number(createpurchase.insertId) + 1);
       setReturnObjectState(createpurchaseReturnObject);
+
+      let entries =
+        JSON.parse(localStorage.getItem("purchaseentry_localstorage")) || [];
+
+      const addEntry = (entry) => {
+        if (entries.length < allcustomers.length + 3) {
+          entries.push(entry);
+          localStorage.setItem(
+            "purchaseentry_localstorage",
+            JSON.stringify(entries)
+          );
+        } else {
+          alert("Date aur Shift Ek Baar Register Se Check Krle!");
+          localStorage.removeItem("purchaseentry_localstorage");
+        }
+      };
+
+      addEntry(createpurchaseReturnObject);
     }
   }, [createpurchaseLoading, createpurchase]);
 
@@ -413,9 +432,9 @@ const Purchaseentry = () => {
                 <label className="modal_purchaseentry_date_lable">
                   Date:
                   <input
-                    ref={inputRef}
-                    tabIndex={1}
                     autoFocus
+                    ref={modalRef}
+                    tabIndex={1}
                     onKeyDown={handleCloseModalKeyEvent}
                     type="date"
                     value={purchaseDate}
@@ -488,6 +507,7 @@ const Purchaseentry = () => {
           <label className="purchaseentry_serialno_lable">
             Serial No.:
             <input
+              ref={inputRef}
               tabIndex={3}
               type="number"
               value={purchaseSerial}

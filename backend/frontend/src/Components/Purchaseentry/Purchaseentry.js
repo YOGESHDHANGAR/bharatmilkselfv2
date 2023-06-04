@@ -315,24 +315,6 @@ const Purchaseentry = () => {
       setSuccessBlink(true);
       setPurchaseSerial(Number(createpurchase.insertId) + 1);
       setReturnObjectState(createpurchaseReturnObject);
-
-      let entries =
-        JSON.parse(localStorage.getItem("purchaseentry_localstorage")) || [];
-
-      const addEntry = (entry) => {
-        if (entries.length < allcustomers.length + 3) {
-          entries.push(entry);
-          localStorage.setItem(
-            "purchaseentry_localstorage",
-            JSON.stringify(entries)
-          );
-        } else {
-          alert("Date aur Shift Ek Baar Register Se Check Krle!");
-          localStorage.removeItem("purchaseentry_localstorage");
-        }
-      };
-
-      addEntry(createpurchaseReturnObject);
     }
   }, [createpurchaseLoading, createpurchase]);
 

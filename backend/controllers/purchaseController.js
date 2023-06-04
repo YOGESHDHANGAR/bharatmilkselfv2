@@ -17,6 +17,31 @@ const handleLockedDate = async () => {
   }
 };
 
+const handleCertainNumberOfEntriesOnDate = async (
+  purchase_date,
+  purchase_shift
+) => {
+  let getEntryCountQuery = `select  count(*) as entryCount from purchase where purchase_date = "${purchase_date}" and purchase_shift="${purchase_shift}"`;
+  let getTotalCustomersCountQuery = `select count(*) as totalCustomers from customer where customer_active_or_not = 1`;
+  try {
+    const getEntryCountQueryResult = await queryAsync(getEntryCountQuery);
+    const getTotalCustomersCountQueryResult = await queryAsync(
+      getTotalCustomersCountQuery
+    );
+
+    if (
+      getEntryCountQueryResult[0].entryCount >
+      getTotalCustomersCountQueryResult[0].totalCustomers + 3
+    ) {
+      return true;
+    }
+
+    return false;
+  } catch (err) {
+    return new Error(err);
+  }
+};
+
 const handleRateAndAmount = async (milkQuantity, milkFat, milkClr) => {
   let remainder = (milkFat * 10) % 3;
   let milkNewFat = milkFat;
@@ -31,7 +56,6 @@ const handleRateAndAmount = async (milkQuantity, milkFat, milkClr) => {
   let getFatRateQuery = `select * from fatratetable where fat_serial = 1`;
 
   try {
-    // Execute the query and wait for the result using async/await
     const getFatRateQueryResult = await queryAsync(getFatRateQuery);
 
     const fat_rate = getFatRateQueryResult[0].fat_rate;
@@ -91,6 +115,17 @@ exports.createPurchase = async (req, res, next) => {
 
   milk_rate = checked_milk_rate;
   milk_amount = checked_milk_amount;
+
+  const k = await handleCertainNumberOfEntriesOnDate(
+    purchase_date,
+    purchase_shift
+  );
+
+  if (k === true) {
+    return next(
+      new ErrorHandler("Date aur Shift Ek Baar Register Se Check Krle!", 401)
+    );
+  }
 
   let defaultQuerry = `insert into purchase(purchase_serial, purchase_date,customer_id ,customer_name, purchase_shift, milk_type, milk_quantity, milk_fat, milk_clr, milk_rate, milk_amount) values( ${purchase_serial},"${purchase_date}",${customer_id}, "${customer_name}", "${purchase_shift}", "${milk_type}", ${milk_quantity}, ${milk_fat}, ${milk_clr}, ${milk_rate}, ${milk_amount})`;
 

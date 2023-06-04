@@ -16,12 +16,6 @@ import MetaData from "../MetaData/MetaData";
 import "./Weekpaymentcolumn2.css";
 import Weekpaymentcolumn2 from "./Weekpaymentcolumn2";
 
-const commonStyles = {
-  bgcolor: "black",
-  borderColor: "black",
-  width: "65vw",
-};
-
 const Weekpayment = () => {
   const showErrorToast = (message) => {
     toast.error(message, {
@@ -49,6 +43,10 @@ const Weekpayment = () => {
       : [...storedArrayInParent, customer_id];
 
     setStoredArrayInParent(updatedArray);
+  };
+
+  const handlePrintFromParent = () => {
+    window.print();
   };
 
   useEffect(() => {
@@ -79,7 +77,7 @@ const Weekpayment = () => {
   return (
     <>
       <MetaData title="Week_Payment" />
-      <Weekpaymentfilter />
+      <Weekpaymentfilter handlePrintFromParent={handlePrintFromParent} />
       <Weekpaymentheader />
       <div className="Week_Payment">
         {weekwisepurchaseLoading === true ? (
@@ -119,7 +117,7 @@ const Weekpayment = () => {
                   )}
               </div>
               <div>
-                <Box sx={{ ...commonStyles, border: 0.3 }} />
+                <Box className="box_component" sx={{ border: 0.3 }} />
                 <div className="weekpayment_totalling_Field">
                   <h3 className="weekpayment_totalMilk_Field">
                     {lastWeek1.calculaeWeekWisePurchaseTotalAmountQueryResult[0].weekTotalQuantity.toFixed(
@@ -134,11 +132,11 @@ const Weekpayment = () => {
                     )}
                   </h3>
                 </div>
-                <Box sx={{ ...commonStyles, border: 1.6 }} />
+                <Box className="box_component" sx={{ border: 1.6 }} />
               </div>
             </div>
 
-            <div className="week_divider">
+            <div className={"week_divider"}>
               <div className="week_divider2">
                 {lastWeek2 &&
                   lastWeek2.calculaeWeekWisePurchaseQueryResult.map(

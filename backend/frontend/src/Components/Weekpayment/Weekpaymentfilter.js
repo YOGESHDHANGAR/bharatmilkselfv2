@@ -12,7 +12,7 @@ import {
 import Switch from "@mui/material/Switch";
 const label = { inputProps: { "aria-label": "Switch demo" } };
 
-const Filter = () => {
+const Filter = (props) => {
   const dispatch = useDispatch();
   const currentDate = new Date().toJSON().slice(0, 10);
   const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(currentDate, 1);
@@ -70,10 +70,9 @@ const Filter = () => {
     dispatch(weekWisePurchaseForSecondLastWeekAction(fromDate, toDate));
   };
 
-  const handlePrint = () => {
-    console.log("lastweekenddate___", lastWeekEndDate);
+  const handlePrintFromChild = () => {
     dispatch(getUpdatedLockDateAction(1, lastWeekEndDate));
-    window.print();
+    props.handlePrintFromParent();
   };
 
   const handleClearLocalStorage = () => {
@@ -116,7 +115,7 @@ const Filter = () => {
         className="submit_input"
         type="button"
         value="Print"
-        onClick={handlePrint}
+        onClick={handlePrintFromChild}
       />
       <input
         className="clear_input"

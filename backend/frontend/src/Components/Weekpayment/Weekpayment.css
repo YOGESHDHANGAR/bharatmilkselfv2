@@ -40,3 +40,35 @@
   width: 7.5%;
   margin-right: 5vmax;
 }
+
+.box_component {
+  background-color: "black";
+  border-color: "black";
+  width: 65vw;
+}
+
+@media print {
+  .week_divider {
+    display: none;
+  }
+
+  .Week_Payment_name_container {
+    width: 100%;
+  }
+
+  .weekpayment_totalMilk_Field {
+    width: 7.5%;
+    margin-left: 52vmax;
+  }
+
+  .weekpayment_total_Amount_Field {
+    width: 7.5%;
+    margin-right: 25vmax;
+  }
+
+  .box_component {
+    background-color: "black";
+    border-color: "black";
+    width: 100vw;
+  }
+}

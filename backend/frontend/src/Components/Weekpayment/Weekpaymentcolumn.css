@@ -28,3 +28,12 @@
 .weekpayment_column_checkbox {
   transform: scale(1.5);
 }
+
+@media print {
+  .weekpayment_column_container {
+    padding-right: 21%;
+  }
+  .weekpayment_column_checkbox {
+    display: none;
+  }
+}

@@ -42,6 +42,7 @@
 }
 
 @media print {
-  /* Define print-specific styles here */
-  
+  .filter_container {
+    display: none;
+  }
 }

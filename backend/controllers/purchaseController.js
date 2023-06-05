@@ -79,224 +79,210 @@ const handleRateAndAmount = async (milkQuantity, milkFat, milkClr) => {
 };
 
 exports.createPurchase = async (req, res, next) => {
-  const purchase_serial = req.body.purchase_serial;
-  const purchase_date = req.body.purchase_date;
-  const customer_id = req.body.customer_id;
-  const customer_name = req.body.customer_name;
-  const purchase_shift = req.body.purchase_shift;
-  const milk_type = req.body.milk_type;
-  const milk_quantity = req.body.milk_quantity;
-  const milk_fat = req.body.milk_fat;
-  const milk_clr = req.body.milk_clr;
-  let milk_rate = req.body.milk_rate;
-  let milk_amount = req.body.milk_amount;
+  try {
+    const purchase_serial = req.body.purchase_serial;
+    const purchase_date = req.body.purchase_date;
+    const customer_id = req.body.customer_id;
+    const customer_name = req.body.customer_name;
+    const purchase_shift = req.body.purchase_shift;
+    const milk_type = req.body.milk_type;
+    const milk_quantity = req.body.milk_quantity;
+    const milk_fat = req.body.milk_fat;
+    const milk_clr = req.body.milk_clr;
+    let milk_rate = req.body.milk_rate;
+    let milk_amount = req.body.milk_amount;
 
-  const { checked_milk_rate, checked_milk_amount } = await handleRateAndAmount(
-    milk_quantity,
-    milk_fat,
-    milk_clr
-  );
+    const { checked_milk_rate, checked_milk_amount } =
+      await handleRateAndAmount(milk_quantity, milk_fat, milk_clr);
 
-  const getLockedDateQueryResult = await handleLockedDate();
+    const getLockedDateQueryResult = await handleLockedDate();
 
-  let got_locked_date = getLockedDateQueryResult[0].locked_date;
-  let lock_status = getLockedDateQueryResult[0].lock_status;
+    let got_locked_date = getLockedDateQueryResult[0].locked_date;
+    let lock_status = getLockedDateQueryResult[0].lock_status;
 
-  const new_purchase_date = new Date(purchase_date);
+    const new_purchase_date = new Date(purchase_date);
 
-  if (lock_status === 1 && new_purchase_date <= got_locked_date) {
-    return next(
-      new ErrorHandler(
-        `Not allowd below date ${purchase_date} first unlock it!`,
-        401
-      )
-    );
-  }
-
-  milk_rate = checked_milk_rate;
-  milk_amount = checked_milk_amount;
-
-  const k = await handleCertainNumberOfEntriesOnDate(
-    purchase_date,
-    purchase_shift
-  );
-
-  if (k === true) {
-    return next(
-      new ErrorHandler("Date aur Shift Ek Baar Register Se Check Krle!", 401)
-    );
-  }
-
-  let defaultQuerry = `insert into purchase(purchase_serial, purchase_date,customer_id ,customer_name, purchase_shift, milk_type, milk_quantity, milk_fat, milk_clr, milk_rate, milk_amount) values( ${purchase_serial},"${purchase_date}",${customer_id}, "${customer_name}", "${purchase_shift}", "${milk_type}", ${milk_quantity}, ${milk_fat}, ${milk_clr}, ${milk_rate}, ${milk_amount})`;
-
-  let verifyNameAndIDQuery = `select customer_id from customer where customer_name = "${customer_name}"`;
-
-  const returnObject = {
-    purchase_serial,
-    purchase_date,
-    customer_id,
-    customer_name,
-    purchase_shift,
-    milk_type,
-    milk_quantity,
-    milk_fat,
-    milk_clr,
-    milk_rate,
-    milk_amount,
-  };
-  con.query(`${verifyNameAndIDQuery}`, (err, verifyNameAndIDQueryResult) => {
-    if (err) {
-      return next(new ErrorHandler(err.sqlMessage, 500));
-    } else {
-      if (
-        Number(customer_id) !==
-        Number(verifyNameAndIDQueryResult[0].customer_id)
-      ) {
-        return next(new ErrorHandler("Id of customer not matched!", 401));
-      } else {
-        con.query(`${defaultQuerry}`, (err, createpurchase) => {
-          if (err) {
-            return next(new ErrorHandler(err.sqlMessage, 500));
-          } else {
-            res.send({ createpurchase, returnObject });
-          }
-        });
-      }
-    }
-  });
-};
-
-exports.getLatestPurchaseSerial = (req, res, next) => {
-  let defaultQuerry = `select max(purchase_serial) as lastEntry from purchase`;
-  // let defaultQuerry = `select max(purchase_serial) as lastEntry from purchase_hub`;
-
-  con.query(`${defaultQuerry}`, (err, getlatestpurchaseserialResult) => {
-    if (err) {
-      return next(new ErrorHandler(err.sqlMessage, 500));
-    } else {
-      res.send(getlatestpurchaseserialResult);
-    }
-  });
-};
-
-exports.getAllPurchases = (req, res, next) => {
-  let defaultQuerry = `select * from purchase where purchase_active_or_not=1 order by purchase_serial desc limit 1000`;
-  // let defaultQuerry = `select p.purchase_serial, p.purchase_date,  c.customer_id, c.customer_name , p.purchase_shift, p.milk_type, p.milk_fat, p.milk_clr, p.milk_rate, p.milk_quantity , p.milk_amount FROM customer c join purchase p on c.customer_id = p.customer_id order by p.purchase_serial desc limit 1000`;
-
-  const customeridQuery = req.query.customer_id;
-  const nameQuery = req.query.customer_name;
-  const fromDateQuery = req.query.fromDate;
-  const toDateQuery = req.query.toDate;
-  const shiftQuery = req.query.purchase_shift;
-
-  let customeQuerry = `select * from purchase where purchase_active_or_not=${1} and`;
-
-  let totalAmountQuery = `select sum(milk_quantity) as requiredTotalMilkQuantity, sum(milk_amount) as requiredTotalMilkAmount from purchase where purchase_active_or_not=${1} and`;
-
-  if (customeridQuery) {
-    customeQuerry = customeQuerry + ` customer_id=${customeridQuery} and `;
-    totalAmountQuery =
-      totalAmountQuery + ` customer_id=${customeridQuery} and `;
-  }
-  if (nameQuery) {
-    customeQuerry = customeQuerry + ` customer_name="${nameQuery}" and`;
-    totalAmountQuery = totalAmountQuery + ` customer_name="${nameQuery}" and`;
-  }
-  if (fromDateQuery && toDateQuery) {
-    customeQuerry =
-      customeQuerry +
-      ` purchase_date>="${fromDateQuery}" and purchase_date<="${toDateQuery}" and`;
-
-    totalAmountQuery =
-      totalAmountQuery +
-      ` purchase_date>="${fromDateQuery}" and purchase_date<="${toDateQuery}" and`;
-  }
-  if (shiftQuery && shiftQuery != "Both") {
-    customeQuerry = customeQuerry + ` purchase_shift="${shiftQuery}" and`;
-    totalAmountQuery = totalAmountQuery + ` purchase_shift="${shiftQuery}" and`;
-  }
-
-  if (customeQuerry.length > 57) {
-    defaultQuerry = customeQuerry.slice(0, -4);
-  }
-
-  totalAmountQuery = totalAmountQuery.slice(0, -4);
-
-  con.query(`${defaultQuerry}`, (err, allpurchases) => {
-    if (err) {
-      res.send(err);
-    } else {
-      con.query(
-        `${totalAmountQuery}`,
-        (err, totalQuantityAmountQueryResultofallpurchases) => {
-          if (err) {
-            return next(new ErrorHandler(err.sqlMessage, 500));
-          } else {
-            res.send({
-              allpurchases,
-              totalQuantityAmountQueryResultofallpurchases,
-            });
-          }
-        }
+    if (lock_status === 1 && new_purchase_date <= got_locked_date) {
+      return next(
+        new ErrorHandler(
+          `Not allowd below date ${purchase_date} first unlock it!`,
+          401
+        )
       );
     }
-  });
+
+    milk_rate = checked_milk_rate;
+    milk_amount = checked_milk_amount;
+
+    const k = await handleCertainNumberOfEntriesOnDate(
+      purchase_date,
+      purchase_shift
+    );
+
+    if (k === true) {
+      return next(
+        new ErrorHandler("Date aur Shift Ek Baar Register Se Check Krle!", 401)
+      );
+    }
+
+    let defaultQuerry = `insert into purchase(purchase_serial, purchase_date,customer_id ,customer_name, purchase_shift, milk_type, milk_quantity, milk_fat, milk_clr, milk_rate, milk_amount) values( ${purchase_serial},"${purchase_date}",${customer_id}, "${customer_name}", "${purchase_shift}", "${milk_type}", ${milk_quantity}, ${milk_fat}, ${milk_clr}, ${milk_rate}, ${milk_amount})`;
+
+    let verifyNameAndIDQuery = `select customer_id from customer where customer_name = "${customer_name}"`;
+
+    const returnObject = {
+      purchase_serial,
+      purchase_date,
+      customer_id,
+      customer_name,
+      purchase_shift,
+      milk_type,
+      milk_quantity,
+      milk_fat,
+      milk_clr,
+      milk_rate,
+      milk_amount,
+    };
+
+    const verifyNameAndIDQueryResult = await queryAsync(verifyNameAndIDQuery);
+
+    if (
+      Number(customer_id) !== Number(verifyNameAndIDQueryResult[0].customer_id)
+    ) {
+      return next(new ErrorHandler("Id of customer not matched!", 401));
+    }
+
+    const createpurchase = await queryAsync(defaultQuerry);
+
+    res.send({ createpurchase, returnObject });
+  } catch (error) {
+    next(new ErrorHandler(error.sqlMessage, 500));
+  }
+};
+
+exports.getLatestPurchaseSerial = async (req, res, next) => {
+  try {
+    let defaultQuerry = `select max(purchase_serial) as lastEntry from purchase`;
+    // let defaultQuerry = `select max(purchase_serial) as lastEntry from purchase_hub`;
+    const getlatestpurchaseserialResult = await queryAsync(defaultQuerry);
+    res.send(getlatestpurchaseserialResult);
+  } catch (error) {
+    return next(new ErrorHandler(error.sqlMessage, 500));
+  }
+};
+
+exports.getAllPurchases = async (req, res, next) => {
+  try {
+    let defaultQuerry = `select * from purchase where purchase_active_or_not=1 order by purchase_serial desc limit 1000`;
+    // let defaultQuerry = `select p.purchase_serial, p.purchase_date,  c.customer_id, c.customer_name , p.purchase_shift, p.milk_type, p.milk_fat, p.milk_clr, p.milk_rate, p.milk_quantity , p.milk_amount FROM customer c join purchase p on c.customer_id = p.customer_id order by p.purchase_serial desc limit 1000`;
+
+    const customeridQuery = req.query.customer_id;
+    const nameQuery = req.query.customer_name;
+    const fromDateQuery = req.query.fromDate;
+    const toDateQuery = req.query.toDate;
+    const shiftQuery = req.query.purchase_shift;
+
+    let customeQuerry = `select * from purchase where purchase_active_or_not=${1} and`;
+
+    let totalAmountQuery = `select sum(milk_quantity) as requiredTotalMilkQuantity, sum(milk_amount) as requiredTotalMilkAmount from purchase where purchase_active_or_not=${1} and`;
+
+    if (customeridQuery) {
+      customeQuerry = customeQuerry + ` customer_id=${customeridQuery} and `;
+      totalAmountQuery =
+        totalAmountQuery + ` customer_id=${customeridQuery} and `;
+    }
+    if (nameQuery) {
+      customeQuerry = customeQuerry + ` customer_name="${nameQuery}" and`;
+      totalAmountQuery = totalAmountQuery + ` customer_name="${nameQuery}" and`;
+    }
+    if (fromDateQuery && toDateQuery) {
+      customeQuerry =
+        customeQuerry +
+        ` purchase_date>="${fromDateQuery}" and purchase_date<="${toDateQuery}" and`;
+
+      totalAmountQuery =
+        totalAmountQuery +
+        ` purchase_date>="${fromDateQuery}" and purchase_date<="${toDateQuery}" and`;
+    }
+    if (shiftQuery && shiftQuery != "Both") {
+      customeQuerry = customeQuerry + ` purchase_shift="${shiftQuery}" and`;
+      totalAmountQuery =
+        totalAmountQuery + ` purchase_shift="${shiftQuery}" and`;
+    }
+
+    if (customeQuerry.length > 57) {
+      defaultQuerry = customeQuerry.slice(0, -4);
+    }
+
+    totalAmountQuery = totalAmountQuery.slice(0, -4);
+
+    const allpurchases = await queryAsync(defaultQuerry);
+
+    const totalQuantityAmountQueryResultofallpurchases = await queryAsync(
+      totalAmountQuery
+    );
+
+    res.send({
+      allpurchases,
+      totalQuantityAmountQueryResultofallpurchases,
+    });
+  } catch (error) {
+    return next(new ErrorHandler(err.sqlMessage, 500));
+  }
 };
 
 const calculaeWeekWisePurchase = async (weekNumber, currentDate1) => {
-  const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(
-    currentDate1,
-    weekNumber
-  );
-
-  const fromDate = lastWeekStartDate;
-  const toDate = lastWeekEndDate;
-
-  let calculaeWeekWisePurchaseQuery;
-  let calculaeWeekWisePurchaseTotalAmountQuery = `select sum(milk_quantity) as weekTotalQuantity, sum(milk_amount) as weekTotalAmount from purchase  where purchase_active_or_not=${1} and purchase_date between "${fromDate}" and "${toDate}"`;
-  if (weekNumber === 1) {
-    calculaeWeekWisePurchaseQuery = `select customer_id, customer_name, round(sum(milk_quantity),2) as milkTotalQuantity, round(sum(milk_amount),2) as milkTotalAmount from purchase where purchase_active_or_not=${1} and purchase_date between "${fromDate}" and "${toDate}"  group by customer_id, customer_name order by customer_name`;
-  } else {
+  try {
     const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(
       currentDate1,
-      1
+      weekNumber
     );
 
-    calculaeWeekWisePurchaseQuery = `
-    SELECT
-    c.customer_id,
-    c.customer_name,
-    ROUND(SUM(p.milk_quantity), 2) AS milkTotalQuantity,
-    ROUND(SUM(p.milk_amount), 2) AS milkTotalAmount
-    FROM
-      customer AS c
-    LEFT JOIN
-      (
-        SELECT
-          customer_id,
-          milk_quantity,
-          milk_amount
-        FROM
-          purchase
-        WHERE 
-        purchase_active_or_not=${1} and
-        purchase_date >= '${fromDate}' AND purchase_date <= '${toDate}'
-      ) AS p ON c.customer_id = p.customer_id
-    WHERE
-      c.customer_id IN (
-        SELECT DISTINCT customer_id
-        FROM purchase
-        WHERE purchase_active_or_not=${1} and purchase_date >= '${lastWeekStartDate}' AND purchase_date <= '${lastWeekEndDate}'
-      )
-    GROUP BY
-      c.customer_id,
-      c.customer_name
-    ORDER BY
-      c.customer_name;
-    `;
-  }
+    const fromDate = lastWeekStartDate;
+    const toDate = lastWeekEndDate;
 
-  try {
+    let calculaeWeekWisePurchaseQuery;
+    let calculaeWeekWisePurchaseTotalAmountQuery = `select sum(milk_quantity) as weekTotalQuantity, sum(milk_amount) as weekTotalAmount from purchase  where purchase_active_or_not=${1} and purchase_date between "${fromDate}" and "${toDate}"`;
+    if (weekNumber === 1) {
+      calculaeWeekWisePurchaseQuery = `select customer_id, customer_name, round(sum(milk_quantity),2) as milkTotalQuantity, round(sum(milk_amount),2) as milkTotalAmount from purchase where purchase_active_or_not=${1} and purchase_date between "${fromDate}" and "${toDate}"  group by customer_id, customer_name order by customer_name`;
+    } else {
+      const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(
+        currentDate1,
+        1
+      );
+
+      calculaeWeekWisePurchaseQuery = `
+      SELECT
+      c.customer_id,
+      c.customer_name,
+      ROUND(SUM(p.milk_quantity), 2) AS milkTotalQuantity,
+      ROUND(SUM(p.milk_amount), 2) AS milkTotalAmount
+      FROM
+        customer AS c
+      LEFT JOIN
+        (
+          SELECT
+            customer_id,
+            milk_quantity,
+            milk_amount
+          FROM
+            purchase
+          WHERE 
+          purchase_active_or_not=${1} and
+          purchase_date >= '${fromDate}' AND purchase_date <= '${toDate}'
+        ) AS p ON c.customer_id = p.customer_id
+      WHERE
+        c.customer_id IN (
+          SELECT DISTINCT customer_id
+          FROM purchase
+          WHERE purchase_active_or_not=${1} and purchase_date >= '${lastWeekStartDate}' AND purchase_date <= '${lastWeekEndDate}'
+        )
+      GROUP BY
+        c.customer_id,
+        c.customer_name
+      ORDER BY
+        c.customer_name;
+      `;
+    }
     const calculaeWeekWisePurchaseQueryResult = await queryAsync(
       calculaeWeekWisePurchaseQuery
     );
@@ -341,149 +327,159 @@ exports.weekWisePurchase = async (req, res, next) => {
   res.send({ lastWeek1, lastWeek2, lastWeek3, lastWeek4 });
 };
 
-exports.customerWisePurchase = (req, res, next) => {
-  const currentDate = new Date().toJSON().slice(0, 10);
-  const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(currentDate, 1);
+exports.customerWisePurchase = async (req, res, next) => {
+  try {
+    const currentDate = new Date().toJSON().slice(0, 10);
+    const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(
+      currentDate,
+      1
+    );
 
-  let fromDate = lastWeekStartDate;
-  let toDate = lastWeekEndDate;
-  const fromDateQuery = req.query.fromDate;
-  const toDateQuery = req.query.toDate;
+    let fromDate = lastWeekStartDate;
+    let toDate = lastWeekEndDate;
+    const fromDateQuery = req.query.fromDate;
+    const toDateQuery = req.query.toDate;
 
-  if (fromDateQuery && toDateQuery) {
-    fromDate = fromDateQuery;
-    toDate = toDateQuery;
-  }
-
-  let defaultQuerry = `select * from purchase where purchase_active_or_not=${1} and purchase_date>="${fromDate}" and purchase_date<="${toDate}" order by customer_name asc, purchase_date asc, purchase_shift desc`;
-
-  con.query(`${defaultQuerry}`, (err, customerwisepurchase) => {
-    if (err) {
-      return next(new ErrorHandler(err.sqlMessage, 500));
-    } else {
-      res.send(customerwisepurchase);
+    if (fromDateQuery && toDateQuery) {
+      fromDate = fromDateQuery;
+      toDate = toDateQuery;
     }
-  });
+
+    let defaultQuerry = `select * from purchase where purchase_active_or_not=${1} and purchase_date>="${fromDate}" and purchase_date<="${toDate}" order by customer_name asc, purchase_date asc, purchase_shift desc`;
+
+    const customerwisepurchase = await queryAsync(defaultQuerry);
+    res.send(customerwisepurchase);
+  } catch (error) {
+    return next(new ErrorHandler(error.sqlMessage, 500));
+  }
 };
 
-exports.singlePurchase = (req, res, next) => {
-  const purchase_serial = req.query.purchase_serial;
+exports.singlePurchase = async (req, res, next) => {
+  try {
+    const purchase_serial = req.query.purchase_serial;
 
-  let defaultQuerry = `select * from purchase where purchase_serial=${purchase_serial} `;
+    let defaultQuerry = `select * from purchase where purchase_serial=${purchase_serial}`;
 
-  con.query(`${defaultQuerry}`, (err, singlepurchase) => {
-    if (err) {
-      return next(new ErrorHandler(err.sqlMessage, 500));
-    } else {
-      res.send(singlepurchase);
-    }
-  });
+    const singlepurchase = await queryAsync(defaultQuerry);
+    res.send(singlepurchase);
+  } catch (error) {
+    return next(new ErrorHandler(err.sqlMessage, 500));
+  }
 };
 
 exports.updatePurchase = async (req, res, next) => {
-  const purchase_serial = req.query.purchase_serial;
-  const purchase_date = req.body.purchase_date;
-  const customer_id = req.body.customer_id;
-  const customer_name = req.body.customer_name;
-  const purchase_shift = req.body.purchase_shift;
-  const milk_type = req.body.milk_type;
-  const milk_quantity = req.body.milk_quantity;
-  const milk_fat = req.body.milk_fat;
-  const milk_clr = req.body.milk_clr;
-  let milk_rate = req.body.milk_rate;
-  let milk_amount = req.body.milk_amount;
+  try {
+    const purchase_serial = req.query.purchase_serial;
+    const purchase_date = req.body.purchase_date;
+    const customer_id = req.body.customer_id;
+    const customer_name = req.body.customer_name;
+    const purchase_shift = req.body.purchase_shift;
+    const milk_type = req.body.milk_type;
+    const milk_quantity = req.body.milk_quantity;
+    const milk_fat = req.body.milk_fat;
+    const milk_clr = req.body.milk_clr;
+    let milk_rate = req.body.milk_rate;
+    let milk_amount = req.body.milk_amount;
 
-  const getLockedDateQueryResult = await handleLockedDate();
+    const getLockedDateQueryResult = await handleLockedDate();
 
-  let got_locked_date = getLockedDateQueryResult[0].locked_date;
-  let lock_status = getLockedDateQueryResult[0].lock_status;
+    let got_locked_date = getLockedDateQueryResult[0].locked_date;
+    let lock_status = getLockedDateQueryResult[0].lock_status;
 
-  const new_purchase_date = new Date(purchase_date);
+    const new_purchase_date = new Date(purchase_date);
 
-  if (lock_status === 1 && new_purchase_date <= got_locked_date) {
-    return next(
-      new ErrorHandler(
-        `Not allowd below date ${purchase_date} first unlock it!`,
-        401
-      )
-    );
-  }
-
-  const { checked_milk_rate, checked_milk_amount } = await handleRateAndAmount(
-    milk_quantity,
-    milk_fat,
-    milk_clr
-  );
-
-  milk_rate = checked_milk_rate;
-  milk_amount = checked_milk_amount;
-
-  const returnObject = {
-    purchase_serial,
-    purchase_date,
-    customer_id,
-    customer_name,
-    purchase_shift,
-    milk_type,
-    milk_quantity,
-    milk_fat,
-    milk_clr,
-    milk_rate,
-    milk_amount,
-  };
-
-  let defaultQuerry = `update purchase set purchase_date = "${purchase_date}",customer_id = ${customer_id} , customer_name= "${customer_name}", purchase_shift="${purchase_shift}", milk_type="${milk_type}", milk_quantity=${milk_quantity}, milk_fat=${milk_fat}, milk_clr=${milk_clr}, milk_rate=${milk_rate}, milk_amount=${milk_amount}  WHERE purchase_serial = ${purchase_serial} `;
-  let fetchUpdatedEntryQuery = `select * from purchase where purchase_serial = ${purchase_serial}`;
-
-  con.query(`${defaultQuerry}`, (err, updatepurchase) => {
-    if (err) {
-      return next(new ErrorHandler(err.sqlMessage, 500));
-    } else {
-      con.query(
-        `${fetchUpdatedEntryQuery}`,
-        (err, fetchUpdatedEntryQueryResult) => {
-          if (err) {
-            return next(new ErrorHandler(err.sqlMessage, 500));
-          } else {
-            res.send({
-              updatepurchase,
-              returnObject,
-              fetchUpdatedEntryQueryResult,
-            });
-          }
-        }
+    if (lock_status === 1 && new_purchase_date <= got_locked_date) {
+      return next(
+        new ErrorHandler(
+          `Not allowd below date ${purchase_date} first unlock it!`,
+          401
+        )
       );
     }
-  });
+
+    const { checked_milk_rate, checked_milk_amount } =
+      await handleRateAndAmount(milk_quantity, milk_fat, milk_clr);
+
+    milk_rate = checked_milk_rate;
+    milk_amount = checked_milk_amount;
+
+    const returnObject = {
+      purchase_serial,
+      purchase_date,
+      customer_id,
+      customer_name,
+      purchase_shift,
+      milk_type,
+      milk_quantity,
+      milk_fat,
+      milk_clr,
+      milk_rate,
+      milk_amount,
+    };
+
+    let defaultQuerry = `update purchase set purchase_date = "${purchase_date}",customer_id = ${customer_id} , customer_name= "${customer_name}", purchase_shift="${purchase_shift}", milk_type="${milk_type}", milk_quantity=${milk_quantity}, milk_fat=${milk_fat}, milk_clr=${milk_clr}, milk_rate=${milk_rate}, milk_amount=${milk_amount}  WHERE purchase_serial = ${purchase_serial} `;
+    let fetchUpdatedEntryQuery = `select * from purchase where purchase_serial = ${purchase_serial}`;
+
+    const updatepurchase = await queryAsync(defaultQuerry);
+
+    const fetchUpdatedEntryQueryResult = await queryAsync(
+      fetchUpdatedEntryQuery
+    );
+
+    res.send({
+      updatepurchase,
+      returnObject,
+      fetchUpdatedEntryQueryResult,
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.sqlMessage, 500));
+  }
 };
 
 exports.deletePurchase = async (req, res, next) => {
-  let purchase_serial = req.query.purchase_serial;
-  let purchase_date = req.query.purchase_date;
+  try {
+    let purchase_serial = req.query.purchase_serial;
+    let purchase_date = req.query.purchase_date;
 
-  const getLockedDateQueryResult = await handleLockedDate();
+    const getLockedDateQueryResult = await handleLockedDate();
 
-  let got_locked_date = getLockedDateQueryResult[0].locked_date;
-  let lock_status = getLockedDateQueryResult[0].lock_status;
+    let got_locked_date = getLockedDateQueryResult[0].locked_date;
+    let lock_status = getLockedDateQueryResult[0].lock_status;
 
-  const new_purchase_date = new Date(purchase_date);
+    const new_purchase_date = new Date(purchase_date);
 
-  if (lock_status === 1 && new_purchase_date <= got_locked_date) {
-    return next(
-      new ErrorHandler(
-        `Not allowd below date ${purchase_date} first unlock it!`,
-        401
-      )
-    );
+    if (lock_status === 1 && new_purchase_date <= got_locked_date) {
+      return next(
+        new ErrorHandler(
+          `Not allowd below date ${purchase_date} first unlock it!`,
+          401
+        )
+      );
+    }
+
+    let defaultQuerry = `delete from purchase where purchase_serial=${purchase_serial}`;
+
+    const deletepurchase = await queryAsync(defaultQuerry);
+
+    res.send(deletepurchase);
+  } catch (error) {
+    return next(new ErrorHandler(err.sqlMessage, 500));
   }
+};
 
-  let defaultQuerry = `delete from purchase where purchase_serial=${purchase_serial}`;
+const performOutlierDetectionForPython = () => {
+  const { exec } = require("child_process");
 
-  con.query(`${defaultQuerry}`, (err, deletepurchase) => {
-    if (err) {
-      return next(new ErrorHandler(err.sqlMessage, 500));
+  const pythonScriptPath =
+    "D:\\YouTube\\SelfProject\\bharatmilkselfv2(plant)\\backend\\controllers\\outlier_detection.py";
+
+  exec(`python ${pythonScriptPath}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Python script execution error: ${error}`);
     } else {
-      res.send(deletepurchase);
+      console.log(`Python script executed successfully.`);
+      console.log(`stdout: ${stdout}`);
+      // console.error(`stderr: ${stderr}`);
     }
   });
 };
@@ -504,7 +500,7 @@ const performOutlierDetection = (data) => {
   );
 
   // Set a threshold to determine outliers (adjust as needed)
-  const threshold = 2;
+  const threshold = 0.001;
 
   // Filter the data to include outliers only
   const outliers = data.filter((row, index) => {
@@ -516,7 +512,7 @@ const performOutlierDetection = (data) => {
 
   // Return the detected outliers
   const insertQuery = `insert outliers_table(purchase_serial,purchase_date,customer_id,customer_name,purchase_shift,milk_type,milk_quantity,milk_fat,milk_clr,milk_rate,milk_amount,purchase_active_or_not,purchase_timestamp)VALUES ?`;
-  const values = outliers.map((outlier) => [
+  const VALUES = outliers.map((outlier) => [
     outlier.purchase_serial,
     outlier.purchase_date,
     outlier.customer_id,
@@ -532,7 +528,7 @@ const performOutlierDetection = (data) => {
     outlier.purchase_timestamp,
   ]);
 
-  con.query(`${insertQuery}`, [values], (err, result) => {
+  con.query(`${insertQuery}`, [VALUES], (err, result) => {
     if (err) {
       // return next(new ErrorHandler(err.sqlMessage, 500));
     } else {
@@ -542,60 +538,48 @@ const performOutlierDetection = (data) => {
   return outliers;
 };
 
-const performOutlierDetectionForPython = () => {
-  const { exec } = require("child_process");
+exports.customerWisePurchaseOutliers = async (req, res, next) => {
+  try {
+    const currentDate = new Date().toJSON().slice(0, 10);
+    const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(
+      currentDate,
+      1
+    );
 
-  const pythonScriptPath =
-    "D:\\YouTube\\SelfProject\\bharatmilkselfv2(plant)\\backend\\controllers\\outlier_detection.py";
+    let fromDate = lastWeekStartDate;
+    let toDate = lastWeekEndDate;
+    const fromDateQuery = req.query.fromDate;
+    const toDateQuery = req.query.toDate;
 
-  exec(`python ${pythonScriptPath}`, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Python script execution error: ${error}`);
-    } else {
-      console.log(`Python script executed successfully.`);
-      console.log(`stdout: ${stdout}`);
-      // console.error(`stderr: ${stderr}`);
+    if (fromDateQuery && toDateQuery) {
+      fromDate = fromDateQuery;
+      toDate = toDateQuery;
     }
-  });
-};
 
-exports.customerWisePurchaseOutliers = (req, res, next) => {
-  const currentDate = new Date().toJSON().slice(0, 10);
-  const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(currentDate, 1);
+    const queryForFindingOutliers = `select * from purchase where purchase_active_or_not=${1} order by customer_id, purchase_shift`;
+    // const queryForFindingOutliers = `select * from purchase_hub where purchase_active_or_not=${1} and purchase_date>= "${fromDate}" and purchase_date<="${toDate}" order by customer_id, purchase_shift`;
 
-  let fromDate = lastWeekStartDate;
-  let toDate = lastWeekEndDate;
-  const fromDateQuery = req.query.fromDate;
-  const toDateQuery = req.query.toDate;
+    const queryForFindingOutliersResult = await queryAsync(
+      queryForFindingOutliers
+    );
+    const morningData = queryForFindingOutliersResult.filter(
+      (row) => row.purchase_shift === "Morning"
+    );
+    const eveningData = queryForFindingOutliersResult.filter(
+      (row) => row.purchase_shift === "Evening"
+    );
 
-  if (fromDateQuery && toDateQuery) {
-    fromDate = fromDateQuery;
-    toDate = toDateQuery;
+    performOutlierDetection(morningData);
+    performOutlierDetection(eveningData);
+
+    // performOutlierDetectionForPython();
+
+    const defaultQuerry = `select * from outliers_table where purchase_date>= "${fromDate}" and purchase_date<="${toDate}"`;
+
+    const result = await queryAsync(defaultQuerry);
+
+    res.send(result);
+  } catch (error) {
+    return next(new ErrorHandler(err.sqlMessage, 500));
   }
-
-  const queryForFindingOutliers = `select * from purchase_hub where purchase_active_or_not=${1} order by customer_id, purchase_shift`;
-  // const queryForFindingOutliers = `select * from purchase_hub where purchase_active_or_not=${1} and purchase_date>= "${fromDate}" and purchase_date<="${toDate}" order by customer_id, purchase_shift`;
-
-  con.query(
-    `${queryForFindingOutliers}`,
-    (err, queryForFindingOutliersResult) => {
-      if (err) {
-        return next(new ErrorHandler(err.sqlMessage, 500));
-      } else {
-        performOutlierDetection(queryForFindingOutliersResult);
-      }
-    }
-  );
-
-  // performOutlierDetectionForPython();
-
-  const defaultQuerry = `select * from outliers_table where purchase_active_or_not=${1} and purchase_date>= "${fromDate}" and purchase_date<="${toDate}"`;
-
-  con.query(`${defaultQuerry}`, (err, result) => {
-    if (err) {
-      return next(new ErrorHandler(err.sqlMessage, 500));
-    } else {
-      res.send(result);
-    }
-  });
 };

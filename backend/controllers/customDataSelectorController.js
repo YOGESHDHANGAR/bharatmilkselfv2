@@ -31,46 +31,49 @@ const handlePreviousSelectedCustomData = async () => {
 };
 
 exports.getpreviousSelectedYear = async (req, res, next) => {
-  let { previousSelectedStartYear, previousSelectedEndYear } =
-    await handlePreviousSelectedCustomData();
+  try {
+    let { previousSelectedStartYear, previousSelectedEndYear } =
+      await handlePreviousSelectedCustomData();
 
-  previousSelectedStartYear = String(previousSelectedStartYear);
-  previousSelectedEndYear = String(previousSelectedEndYear);
+    previousSelectedStartYear = String(previousSelectedStartYear);
+    previousSelectedEndYear = String(previousSelectedEndYear);
 
-  previousSelectedStartYear = previousSelectedStartYear.split(" ")[3];
-  previousSelectedEndYear = previousSelectedEndYear.split(" ")[3];
+    previousSelectedStartYear = previousSelectedStartYear.split(" ")[3];
+    previousSelectedEndYear = previousSelectedEndYear.split(" ")[3];
 
-  if (previousSelectedStartYear === previousSelectedEndYear) {
-    previousSelectedEndYear = Number(previousSelectedEndYear) + 1;
-  }
+    if (previousSelectedStartYear === previousSelectedEndYear) {
+      previousSelectedEndYear = Number(previousSelectedEndYear) + 1;
+    }
 
-  previousSelectedEndYear = String(previousSelectedEndYear);
+    previousSelectedEndYear = String(previousSelectedEndYear);
 
-  res.send({ previousSelectedStartYear, previousSelectedEndYear });
+    res.send({ previousSelectedStartYear, previousSelectedEndYear });
+  } catch (error) {}
 };
 
 exports.customDataSelector = async (req, res, next) => {
-  const financialYearSelected = req.query.financialYearSelected;
+  try {
+    const financialYearSelected = req.query.financialYearSelected;
 
-  let startYear = Number(financialYearSelected.split("-")[0]) || 2023;
-  let endYear = Number(financialYearSelected.split("-")[1]) || 2024;
+    let startYear = Number(financialYearSelected.split("-")[0]) || 2023;
+    let endYear = Number(financialYearSelected.split("-")[1]) || 2024;
 
-  let { previousSelectedStartYear, previousSelectedEndYear } =
-    await handlePreviousSelectedCustomData();
+    let { previousSelectedStartYear, previousSelectedEndYear } =
+      await handlePreviousSelectedCustomData();
 
-  previousSelectedStartYear = String(previousSelectedStartYear);
-  previousSelectedEndYear = String(previousSelectedEndYear);
+    previousSelectedStartYear = String(previousSelectedStartYear);
+    previousSelectedEndYear = String(previousSelectedEndYear);
 
-  previousSelectedStartYear = previousSelectedStartYear.split(" ")[3];
-  previousSelectedEndYear = previousSelectedEndYear.split(" ")[3];
+    previousSelectedStartYear = previousSelectedStartYear.split(" ")[3];
+    previousSelectedEndYear = previousSelectedEndYear.split(" ")[3];
 
-  if (previousSelectedStartYear === previousSelectedEndYear) {
-    previousSelectedEndYear = Number(previousSelectedEndYear) + 1;
-  }
+    if (previousSelectedStartYear === previousSelectedEndYear) {
+      previousSelectedEndYear = Number(previousSelectedEndYear) + 1;
+    }
 
-  previousSelectedEndYear = String(previousSelectedEndYear);
+    previousSelectedEndYear = String(previousSelectedEndYear);
 
-  let defaultQuerry1 = `UPDATE purchase_hub AS ph
+    let defaultQuerry1 = `UPDATE purchase_hub AS ph
   INNER JOIN purchase AS p ON p.purchase_serial = ph.purchase_serial
   SET
     ph.purchase_date = p.purchase_date,
@@ -88,12 +91,12 @@ exports.customDataSelector = async (req, res, next) => {
     WHERE ph.purchase_date >= '${previousSelectedStartYear}-04-01' AND ph.purchase_date <= '${previousSelectedEndYear}-03-31'
   `;
 
-  let defaultQuerry2 = `INSERT IGNORE INTO purchase_hub (purchase_serial, purchase_date, customer_id, customer_name, purchase_shift, milk_type, milk_quantity, milk_fat, milk_clr, milk_rate, milk_amount, purchase_active_or_not, purchase_timestamp)
+    let defaultQuerry2 = `INSERT IGNORE INTO purchase_hub (purchase_serial, purchase_date, customer_id, customer_name, purchase_shift, milk_type, milk_quantity, milk_fat, milk_clr, milk_rate, milk_amount, purchase_active_or_not, purchase_timestamp)
   SELECT purchase_serial, purchase_date, customer_id, customer_name, purchase_shift, milk_type, milk_quantity, milk_fat, milk_clr, milk_rate, milk_amount, purchase_active_or_not, purchase_timestamp
   FROM purchase
   `;
 
-  let defaultQuerry3 = `DELETE ph
+    let defaultQuerry3 = `DELETE ph
   FROM purchase_hub AS ph
   WHERE ph.purchase_date >= '${previousSelectedStartYear}-04-01' AND ph.purchase_date <= '${previousSelectedEndYear}-03-31'
   AND NOT EXISTS (
@@ -103,48 +106,26 @@ exports.customDataSelector = async (req, res, next) => {
   )  
   `;
 
-  let defaultQuerry4 = `DELETE FROM purchase`;
+    let defaultQuerry4 = `DELETE FROM purchase`;
 
-  let defaultQuerry5 = `INSERT INTO purchase (purchase_serial, purchase_date, customer_id, customer_name, purchase_shift, milk_type, milk_quantity, milk_fat, milk_clr, milk_rate, milk_amount, purchase_active_or_not, purchase_timestamp)
+    let defaultQuerry5 = `INSERT INTO purchase (purchase_serial, purchase_date, customer_id, customer_name, purchase_shift, milk_type, milk_quantity, milk_fat, milk_clr, milk_rate, milk_amount, purchase_active_or_not, purchase_timestamp)
   SELECT ph.purchase_serial, ph.purchase_date, ph.customer_id, ph.customer_name, ph.purchase_shift, ph.milk_type, ph.milk_quantity, ph.milk_fat, ph.milk_clr, ph.milk_rate, ph.milk_amount, ph.purchase_active_or_not, ph.purchase_timestamp
   FROM purchase_hub AS ph
   WHERE ph.purchase_date >='${startYear}-04-01' and  ph.purchase_date <= '${endYear}-03-31'
   `;
 
-  con.query(defaultQuerry1, (err, result1) => {
-    if (err) {
-      console.log(result1);
-      return next(new ErrorHandler(err.sqlMessage, 500));
-    } else {
-      con.query(defaultQuerry2, (err, result2) => {
-        if (err) {
-          console.log(result2);
-          return next(new ErrorHandler(err.sqlMessage, 500));
-        } else {
-          con.query(defaultQuerry3, (err, result3) => {
-            if (err) {
-              console.log(result3);
-              return next(new ErrorHandler(err.sqlMessage, 500));
-            } else {
-              con.query(defaultQuerry4, (err, result4) => {
-                if (err) {
-                  console.log(result4);
-                  return next(new ErrorHandler(err.sqlMessage, 500));
-                } else {
-                  con.query(defaultQuerry5, (err, customDataSelectorResult) => {
-                    if (err) {
-                      console.log(customDataSelectorResult);
-                      return next(new ErrorHandler(err.sqlMessage, 500));
-                    } else {
-                      res.send(customDataSelectorResult);
-                    }
-                  });
-                }
-              });
-            }
-          });
-        }
-      });
-    }
-  });
+    const result1 = await queryAsync(defaultQuerry1);
+
+    const result2 = await queryAsync(defaultQuerry2);
+
+    const result3 = await queryAsync(defaultQuerry3);
+
+    const result4 = await queryAsync(defaultQuerry4);
+
+    const customDataSelectorResult = await queryAsync(defaultQuerry5);
+
+    res.send(customDataSelectorResult);
+  } catch (error) {
+    return next(new ErrorHandler(error.sqlMessage, 500));
+  }
 };

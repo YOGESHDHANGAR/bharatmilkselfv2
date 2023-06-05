@@ -1,54 +1,56 @@
 const con = require("../databases/database");
 const ErrorHandler = require("../utils/errorhander");
+const util = require("util");
 
-exports.getLockUnclockDate = (req, res, next) => {
-  let defaultQuerry = `select * from lockdatetable where locked_date_serial=${1}`;
-  con.query(`${defaultQuerry}`, (err, getLockeDateResult) => {
-    if (err) {
-      return next(new ErrorHandler(err.sqlMessage, 500));
-    } else {
-      res.send(getLockeDateResult);
-    }
-  });
+const queryAsync = util.promisify(con.query).bind(con);
+
+exports.getLockUnclockDate = async (req, res, next) => {
+  try {
+    let defaultQuerry = `select * from lockdatetable where locked_date_serial=${1}`;
+
+    const getLockeDateResult = await queryAsync(defaultQuerry);
+    res.send(getLockeDateResult);
+  } catch (error) {
+    return next(new ErrorHandler(error.sqlMessage, 500));
+  }
 };
 
-exports.getUpdateLockedDate = (req, res, next) => {
-  const lock_state = req.query.lock_state;
-  const new_locked_date = req.query.new_locked_date;
-  console.log(new_locked_date);
+exports.getUpdateLockedDate = async (req, res, next) => {
+  try {
+    const lock_state = req.query.lock_state;
+    const new_locked_date = req.query.new_locked_date;
 
-  let defaultQuerry = `update lockdatetable set locked_date = '${new_locked_date}', lock_status =${lock_state}  where locked_date_serial = ${1}`;
+    let defaultQuerry = `update lockdatetable set locked_date = '${new_locked_date}', lock_status =${lock_state}  where locked_date_serial = ${1}`;
 
-  con.query(`${defaultQuerry}`, (err, updateLockedDateResutl) => {
-    if (err) {
-      return next(new ErrorHandler(err.sqlMessage, 500));
-    } else {
-      res.send(updateLockedDateResutl);
-    }
-  });
+    const updateLockedDateResult = await queryAsync(defaultQuerry);
+
+    res.send(updateLockedDateResult);
+  } catch (error) {
+    return next(new ErrorHandler(error.sqlMessage, 500));
+  }
 };
 
-exports.getLockedState = (req, res, next) => {
-  let defaultQuerry = `select * from lockdatetable where locked_date_serial=${1}`;
+exports.getLockedState = async (req, res, next) => {
+  try {
+    let defaultQuerry = `select * from lockdatetable where locked_date_serial=${1}`;
 
-  con.query(`${defaultQuerry}`, (err, getLockeStateResult) => {
-    if (err) {
-      return next(new ErrorHandler(err.sqlMessage, 500));
-    } else {
-      res.send(getLockeStateResult);
-    }
-  });
+    const getLockeStateResult = await queryAsync(defaultQuerry);
+
+    res.send(getLockeStateResult);
+  } catch (error) {
+    return next(new ErrorHandler(error.sqlMessage, 500));
+  }
 };
 
-exports.toggleLock = (req, res, next) => {
-  const lock_status = req.query.lock_status;
-  let defaultQuerry = `update lockdatetable set lock_status = "${lock_status}" where locked_date_serial = ${1}`;
+exports.toggleLock = async (req, res, next) => {
+  try {
+    const lock_status = req.query.lock_status;
+    let defaultQuerry = `update lockdatetable set lock_status = "${lock_status}" where locked_date_serial = ${1}`;
 
-  con.query(`${defaultQuerry}`, (err, lockeStatusResult) => {
-    if (err) {
-      return next(new ErrorHandler(err.sqlMessage, 500));
-    } else {
-      res.send(lockeStatusResult);
-    }
-  });
+    const lockeStatusResult = await queryAsync(defaultQuerry);
+
+    res.send(lockeStatusResult);
+  } catch (error) {
+    return next(new ErrorHandler(error.sqlMessage, 500));
+  }
 };

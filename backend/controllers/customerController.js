@@ -1,121 +1,98 @@
 const con = require("../databases/database");
+const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const ErrorHandler = require("../utils/errorhander");
 
 const util = require("util");
 
 const queryAsync = util.promisify(con.query).bind(con);
 
-exports.createCustomer = async (req, res, next) => {
-  try {
-    const customer_name = req.body.customer_name;
-    const trimmedName = customer_name.trim();
-    const formattedName = trimmedName.replace(/\s+/g, " ");
+exports.createCustomer = catchAsyncErrors(async (req, res, next) => {
+  const customer_name = req.body.customer_name;
+  const trimmedName = customer_name.trim();
+  const formattedName = trimmedName.replace(/\s+/g, " ");
 
-    if (formattedName.length < 1) {
-      return next(new ErrorHandler("Please Select Valid Customer Name", 500));
-    }
-
-    let defaultQuerry = `insert into customer(customer_name) values("${formattedName}")`;
-
-    const createcustomer = await queryAsync(defaultQuerry);
-
-    res.send(createcustomer);
-  } catch (error) {
-    return next(new ErrorHandler(error.sqlMessage, 500));
+  if (formattedName.length < 1) {
+    return next(new ErrorHandler("Please Select Valid Customer Name", 500));
   }
-};
 
-exports.getAllCustomers = async (req, res, next) => {
-  try {
-    const unfiltered = req.query.unfiltered;
-    let defaultQuerry = unfiltered
-      ? `select * from customer order by customer_name`
-      : `select * from customer where customer_active_or_not=${1} order by customer_name`;
+  let defaultQuerry = `insert into customer(customer_name) values("${formattedName}")`;
 
-    const allcustomers = await queryAsync(defaultQuerry);
+  const createcustomer = await queryAsync(defaultQuerry);
 
-    res.send(allcustomers);
-  } catch (error) {
-    return next(new ErrorHandler(error.sqlMessage, 500));
+  res.send(createcustomer);
+});
+
+exports.getAllCustomers = catchAsyncErrors(async (req, res, next) => {
+  const unfiltered = req.query.unfiltered;
+  let defaultQuerry = unfiltered
+    ? `select * from customer order by customer_name`
+    : `select * from customer where customer_active_or_not=${1} order by customer_name`;
+
+  const allcustomers = await queryAsync(defaultQuerry);
+
+  res.send(allcustomers);
+});
+
+exports.singleCustomer = catchAsyncErrors(async (req, res, next) => {
+  const customer_id = req.query.customer_id;
+
+  let defaultQuerry = `select * from customer where customer_id=${customer_id} `;
+
+  const singlecustomer = await queryAsync(defaultQuerry);
+
+  res.send(singlecustomer);
+});
+
+exports.updateCustomer = catchAsyncErrors(async (req, res, next) => {
+  const customer_id = req.body.customer_id;
+  const customer_name = req.body.customer_name;
+  const trimmedName = customer_name.trim();
+  const formattedName = trimmedName.replace(/\s+/g, " ");
+
+  if (formattedName.length < 1) {
+    return next(new ErrorHandler("Please Select Valid Customer Name", 500));
   }
-};
+  let defaultQuerry = `update customer SET  customer_name= "${formattedName}" where customer_id = ${customer_id} `;
 
-exports.singleCustomer = async (req, res, next) => {
-  try {
-    const customer_id = req.query.customer_id;
+  let updateCustomerNameInPurchase = `update purchase SET customer_name = "${formattedName}" where customer_id = ${customer_id}`;
 
-    let defaultQuerry = `select * from customer where customer_id=${customer_id} `;
+  let updateCustomerNameInPurchase_hub = `update purchase_hub SET customer_name = "${formattedName}" where customer_id = ${customer_id}`;
 
-    const singlecustomer = await queryAsync(defaultQuerry);
+  const updatecustomer = await queryAsync(defaultQuerry);
 
-    res.send(singlecustomer);
-  } catch (error) {
-    return next(new ErrorHandler(error.sqlMessage, 500));
-  }
-};
+  const updateCustomerNameInPurchaseResult = await queryAsync(
+    updateCustomerNameInPurchase
+  );
 
-exports.updateCustomer = async (req, res, next) => {
-  try {
-    const customer_id = req.body.customer_id;
-    const customer_name = req.body.customer_name;
-    const trimmedName = customer_name.trim();
-    const formattedName = trimmedName.replace(/\s+/g, " ");
+  const updateCustomerNameInPurchase_hubResult = await queryAsync(
+    updateCustomerNameInPurchase_hub
+  );
 
-    if (formattedName.length < 1) {
-      return next(new ErrorHandler("Please Select Valid Customer Name", 500));
-    }
-    let defaultQuerry = `update customer SET  customer_name= "${formattedName}" where customer_id = ${customer_id} `;
+  res.send(updatecustomer);
+});
 
-    let updateCustomerNameInPurchase = `update purchase SET customer_name = "${formattedName}" where customer_id = ${customer_id}`;
+exports.deleteCustomer = catchAsyncErrors(async (req, res, next) => {
+  const customer_id = req.query.customer_id;
 
-    let updateCustomerNameInPurchase_hub = `update purchase_hub SET customer_name = "${formattedName}" where customer_id = ${customer_id}`;
+  let defaultQuerry = `Delete from customer where customer_id=${customer_id}`;
 
-    const updatecustomer = await queryAsync(defaultQuerry);
+  const deletecustomer = await queryAsync(defaultQuerry);
 
-    const updateCustomerNameInPurchaseResult = await queryAsync(
-      updateCustomerNameInPurchase
-    );
+  res.send(deletecustomer);
+});
 
-    const updateCustomerNameInPurchase_hubResult = await queryAsync(
-      updateCustomerNameInPurchase_hub
-    );
+exports.customerActiceOrInactive = catchAsyncErrors(async (req, res, next) => {
+  const customer_id = req.query.customer_id;
+  const new_customer_active_or_not = req.query.new_customer_active_or_not;
+  let defaultQuerry = `update customer set customer_active_or_not= "${new_customer_active_or_not}" where customer_id = ${customer_id} `;
 
-    res.send(updatecustomer);
-  } catch (error) {
-    return next(new ErrorHandler(error.sqlMessage, 500));
-  }
-};
+  let updatePurchaseActiveOrInactiveQuery = `update purchase set purchase_active_or_not= "${new_customer_active_or_not}" where customer_id = ${customer_id}`;
 
-exports.deleteCustomer = async (req, res, next) => {
-  try {
-    const customer_id = req.query.customer_id;
+  const customerActiceOrInactiveResult = await queryAsync(defaultQuerry);
 
-    let defaultQuerry = `Delete from customer where customer_id=${customer_id}`;
+  const updatePurchaseActiveOrInactiveResut = await queryAsync(
+    updatePurchaseActiveOrInactiveQuery
+  );
 
-    const deletecustomer = await queryAsync(defaultQuerry);
-
-    res.send(deletecustomer);
-  } catch (error) {
-    return next(new ErrorHandler(error.sqlMessage, 500));
-  }
-};
-
-exports.customerActiceOrInactive = async (req, res, next) => {
-  try {
-    const customer_id = req.query.customer_id;
-    const new_customer_active_or_not = req.query.new_customer_active_or_not;
-    let defaultQuerry = `update customer set customer_active_or_not= "${new_customer_active_or_not}" where customer_id = ${customer_id} `;
-
-    let updatePurchaseActiveOrInactiveQuery = `update purchase set purchase_active_or_not= "${new_customer_active_or_not}" where customer_id = ${customer_id}`;
-
-    const customerActiceOrInactiveResult = await queryAsync(defaultQuerry);
-
-    const updatePurchaseActiveOrInactiveResut = await queryAsync(
-      updatePurchaseActiveOrInactiveQuery
-    );
-
-    res.send(customerActiceOrInactiveResult);
-  } catch (error) {
-    return next(new ErrorHandler(error.sqlMessage, 500));
-  }
-};
+  res.send(customerActiceOrInactiveResult);
+});

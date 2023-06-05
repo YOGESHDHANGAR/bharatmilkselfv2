@@ -1,4 +1,5 @@
 const con = require("../databases/database");
+const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const ErrorHandler = require("../utils/errorhander");
 const lastWeekDates = require("../utils/lastWeekDates");
 const util = require("util");
@@ -7,9 +8,9 @@ const util = require("util");
 const queryAsync = util.promisify(con.query).bind(con);
 
 const handleLockedDate = async () => {
-  let getLockedDateQuery = `select * from lockdatetable where locked_date_serial = 1`;
-
   try {
+    let getLockedDateQuery = `select * from lockdatetable where locked_date_serial = 1`;
+
     const getLockedDateQueryResult = await queryAsync(getLockedDateQuery);
     return getLockedDateQueryResult;
   } catch (err) {
@@ -21,9 +22,9 @@ const handleCertainNumberOfEntriesOnDate = async (
   purchase_date,
   purchase_shift
 ) => {
-  let getEntryCountQuery = `select  count(*) as entryCount from purchase where purchase_date = "${purchase_date}" and purchase_shift="${purchase_shift}"`;
-  let getTotalCustomersCountQuery = `select count(*) as totalCustomers from customer where customer_active_or_not = 1`;
   try {
+    let getEntryCountQuery = `select  count(*) as entryCount from purchase where purchase_date = "${purchase_date}" and purchase_shift="${purchase_shift}"`;
+    let getTotalCustomersCountQuery = `select count(*) as totalCustomers from customer where customer_active_or_not = 1`;
     const getEntryCountQueryResult = await queryAsync(getEntryCountQuery);
     const getTotalCustomersCountQueryResult = await queryAsync(
       getTotalCustomersCountQuery
@@ -43,19 +44,19 @@ const handleCertainNumberOfEntriesOnDate = async (
 };
 
 const handleRateAndAmount = async (milkQuantity, milkFat, milkClr) => {
-  let remainder = (milkFat * 10) % 3;
-  let milkNewFat = milkFat;
-  if (remainder === 0) {
-    milkNewFat = Number(milkFat) + 0.1;
-  } else if (remainder === 1) {
-    milkNewFat = Number(milkFat);
-  } else if (remainder === 2) {
-    milkNewFat = Number(milkFat) - 0.1;
-  }
-
-  let getFatRateQuery = `select * from fatratetable where fat_serial = 1`;
-
   try {
+    let remainder = (milkFat * 10) % 3;
+    let milkNewFat = milkFat;
+    if (remainder === 0) {
+      milkNewFat = Number(milkFat) + 0.1;
+    } else if (remainder === 1) {
+      milkNewFat = Number(milkFat);
+    } else if (remainder === 2) {
+      milkNewFat = Number(milkFat) - 0.1;
+    }
+
+    let getFatRateQuery = `select * from fatratetable where fat_serial = 1`;
+
     const getFatRateQueryResult = await queryAsync(getFatRateQuery);
 
     const fat_rate = getFatRateQueryResult[0].fat_rate;
@@ -78,157 +79,147 @@ const handleRateAndAmount = async (milkQuantity, milkFat, milkClr) => {
   }
 };
 
-exports.createPurchase = async (req, res, next) => {
-  try {
-    const purchase_serial = req.body.purchase_serial;
-    const purchase_date = req.body.purchase_date;
-    const customer_id = req.body.customer_id;
-    const customer_name = req.body.customer_name;
-    const purchase_shift = req.body.purchase_shift;
-    const milk_type = req.body.milk_type;
-    const milk_quantity = req.body.milk_quantity;
-    const milk_fat = req.body.milk_fat;
-    const milk_clr = req.body.milk_clr;
-    let milk_rate = req.body.milk_rate;
-    let milk_amount = req.body.milk_amount;
+exports.createPurchase = catchAsyncErrors(async (req, res, next) => {
+  const purchase_serial = req.body.purchase_serial;
+  const purchase_date = req.body.purchase_date;
+  const customer_id = req.body.customer_id;
+  const customer_name = req.body.customer_name;
+  const purchase_shift = req.body.purchase_shift;
+  const milk_type = req.body.milk_type;
+  const milk_quantity = req.body.milk_quantity;
+  const milk_fat = req.body.milk_fat;
+  const milk_clr = req.body.milk_clr;
+  let milk_rate = req.body.milk_rate;
+  let milk_amount = req.body.milk_amount;
 
-    const { checked_milk_rate, checked_milk_amount } =
-      await handleRateAndAmount(milk_quantity, milk_fat, milk_clr);
+  const { checked_milk_rate, checked_milk_amount } = await handleRateAndAmount(
+    milk_quantity,
+    milk_fat,
+    milk_clr
+  );
 
-    const getLockedDateQueryResult = await handleLockedDate();
+  const getLockedDateQueryResult = await handleLockedDate();
 
-    let got_locked_date = getLockedDateQueryResult[0].locked_date;
-    let lock_status = getLockedDateQueryResult[0].lock_status;
+  let got_locked_date = getLockedDateQueryResult[0].locked_date;
+  let lock_status = getLockedDateQueryResult[0].lock_status;
 
-    const new_purchase_date = new Date(purchase_date);
+  const new_purchase_date = new Date(purchase_date);
 
-    if (lock_status === 1 && new_purchase_date <= got_locked_date) {
-      return next(
-        new ErrorHandler(
-          `Not allowd below date ${purchase_date} first unlock it!`,
-          401
-        )
-      );
-    }
-
-    milk_rate = checked_milk_rate;
-    milk_amount = checked_milk_amount;
-
-    const k = await handleCertainNumberOfEntriesOnDate(
-      purchase_date,
-      purchase_shift
+  if (lock_status === 1 && new_purchase_date <= got_locked_date) {
+    return next(
+      new ErrorHandler(
+        `Not allowd below date ${purchase_date} first unlock it!`,
+        401
+      )
     );
-
-    if (k === true) {
-      return next(
-        new ErrorHandler("Date aur Shift Ek Baar Register Se Check Krle!", 401)
-      );
-    }
-
-    let defaultQuerry = `insert into purchase(purchase_serial, purchase_date,customer_id ,customer_name, purchase_shift, milk_type, milk_quantity, milk_fat, milk_clr, milk_rate, milk_amount) values( ${purchase_serial},"${purchase_date}",${customer_id}, "${customer_name}", "${purchase_shift}", "${milk_type}", ${milk_quantity}, ${milk_fat}, ${milk_clr}, ${milk_rate}, ${milk_amount})`;
-
-    let verifyNameAndIDQuery = `select customer_id from customer where customer_name = "${customer_name}"`;
-
-    const returnObject = {
-      purchase_serial,
-      purchase_date,
-      customer_id,
-      customer_name,
-      purchase_shift,
-      milk_type,
-      milk_quantity,
-      milk_fat,
-      milk_clr,
-      milk_rate,
-      milk_amount,
-    };
-
-    const verifyNameAndIDQueryResult = await queryAsync(verifyNameAndIDQuery);
-
-    if (
-      Number(customer_id) !== Number(verifyNameAndIDQueryResult[0].customer_id)
-    ) {
-      return next(new ErrorHandler("Id of customer not matched!", 401));
-    }
-
-    const createpurchase = await queryAsync(defaultQuerry);
-
-    res.send({ createpurchase, returnObject });
-  } catch (error) {
-    next(new ErrorHandler(error.sqlMessage, 500));
   }
-};
 
-exports.getLatestPurchaseSerial = async (req, res, next) => {
-  try {
-    let defaultQuerry = `select max(purchase_serial) as lastEntry from purchase`;
-    // let defaultQuerry = `select max(purchase_serial) as lastEntry from purchase_hub`;
-    const getlatestpurchaseserialResult = await queryAsync(defaultQuerry);
-    res.send(getlatestpurchaseserialResult);
-  } catch (error) {
-    return next(new ErrorHandler(error.sqlMessage, 500));
-  }
-};
+  milk_rate = checked_milk_rate;
+  milk_amount = checked_milk_amount;
 
-exports.getAllPurchases = async (req, res, next) => {
-  try {
-    let defaultQuerry = `select * from purchase where purchase_active_or_not=1 order by purchase_serial desc limit 1000`;
-    // let defaultQuerry = `select p.purchase_serial, p.purchase_date,  c.customer_id, c.customer_name , p.purchase_shift, p.milk_type, p.milk_fat, p.milk_clr, p.milk_rate, p.milk_quantity , p.milk_amount FROM customer c join purchase p on c.customer_id = p.customer_id order by p.purchase_serial desc limit 1000`;
+  const k = await handleCertainNumberOfEntriesOnDate(
+    purchase_date,
+    purchase_shift
+  );
 
-    const customeridQuery = req.query.customer_id;
-    const nameQuery = req.query.customer_name;
-    const fromDateQuery = req.query.fromDate;
-    const toDateQuery = req.query.toDate;
-    const shiftQuery = req.query.purchase_shift;
-
-    let customeQuerry = `select * from purchase where purchase_active_or_not=${1} and`;
-
-    let totalAmountQuery = `select sum(milk_quantity) as requiredTotalMilkQuantity, sum(milk_amount) as requiredTotalMilkAmount from purchase where purchase_active_or_not=${1} and`;
-
-    if (customeridQuery) {
-      customeQuerry = customeQuerry + ` customer_id=${customeridQuery} and `;
-      totalAmountQuery =
-        totalAmountQuery + ` customer_id=${customeridQuery} and `;
-    }
-    if (nameQuery) {
-      customeQuerry = customeQuerry + ` customer_name="${nameQuery}" and`;
-      totalAmountQuery = totalAmountQuery + ` customer_name="${nameQuery}" and`;
-    }
-    if (fromDateQuery && toDateQuery) {
-      customeQuerry =
-        customeQuerry +
-        ` purchase_date>="${fromDateQuery}" and purchase_date<="${toDateQuery}" and`;
-
-      totalAmountQuery =
-        totalAmountQuery +
-        ` purchase_date>="${fromDateQuery}" and purchase_date<="${toDateQuery}" and`;
-    }
-    if (shiftQuery && shiftQuery != "Both") {
-      customeQuerry = customeQuerry + ` purchase_shift="${shiftQuery}" and`;
-      totalAmountQuery =
-        totalAmountQuery + ` purchase_shift="${shiftQuery}" and`;
-    }
-
-    if (customeQuerry.length > 57) {
-      defaultQuerry = customeQuerry.slice(0, -4);
-    }
-
-    totalAmountQuery = totalAmountQuery.slice(0, -4);
-
-    const allpurchases = await queryAsync(defaultQuerry);
-
-    const totalQuantityAmountQueryResultofallpurchases = await queryAsync(
-      totalAmountQuery
+  if (k === true) {
+    return next(
+      new ErrorHandler("Date aur Shift Ek Baar Register Se Check Krle!", 401)
     );
-
-    res.send({
-      allpurchases,
-      totalQuantityAmountQueryResultofallpurchases,
-    });
-  } catch (error) {
-    return next(new ErrorHandler(err.sqlMessage, 500));
   }
-};
+
+  let defaultQuerry = `insert into purchase(purchase_serial, purchase_date,customer_id ,customer_name, purchase_shift, milk_type, milk_quantity, milk_fat, milk_clr, milk_rate, milk_amount) values( ${purchase_serial},"${purchase_date}",${customer_id}, "${customer_name}", "${purchase_shift}", "${milk_type}", ${milk_quantity}, ${milk_fat}, ${milk_clr}, ${milk_rate}, ${milk_amount})`;
+
+  let verifyNameAndIDQuery = `select customer_id from customer where customer_name = "${customer_name}"`;
+
+  const returnObject = {
+    purchase_serial,
+    purchase_date,
+    customer_id,
+    customer_name,
+    purchase_shift,
+    milk_type,
+    milk_quantity,
+    milk_fat,
+    milk_clr,
+    milk_rate,
+    milk_amount,
+  };
+
+  const verifyNameAndIDQueryResult = await queryAsync(verifyNameAndIDQuery);
+
+  if (
+    Number(customer_id) !== Number(verifyNameAndIDQueryResult[0].customer_id)
+  ) {
+    return next(new ErrorHandler("Id of customer not matched!", 401));
+  }
+
+  const createpurchase = await queryAsync(defaultQuerry);
+
+  res.send({ createpurchase, returnObject });
+});
+
+exports.getLatestPurchaseSerial = catchAsyncErrors(async (req, res, next) => {
+  let defaultQuerry = `select max(purchase_serial) as lastEntry from purchase`;
+  // let defaultQuerry = `select max(purchase_serial) as lastEntry from purchase_hub`;
+  const getlatestpurchaseserialResult = await queryAsync(defaultQuerry);
+  res.send(getlatestpurchaseserialResult);
+});
+
+exports.getAllPurchases = catchAsyncErrors(async (req, res, next) => {
+  let defaultQuerry = `select * from purchase where purchase_active_or_not=1 order by purchase_serial desc limit 1000`;
+  // let defaultQuerry = `select p.purchase_serial, p.purchase_date,  c.customer_id, c.customer_name , p.purchase_shift, p.milk_type, p.milk_fat, p.milk_clr, p.milk_rate, p.milk_quantity , p.milk_amount FROM customer c join purchase p on c.customer_id = p.customer_id order by p.purchase_serial desc limit 1000`;
+
+  const customeridQuery = req.query.customer_id;
+  const nameQuery = req.query.customer_name;
+  const fromDateQuery = req.query.fromDate;
+  const toDateQuery = req.query.toDate;
+  const shiftQuery = req.query.purchase_shift;
+
+  let customeQuerry = `select * from purchase where purchase_active_or_not=${1} and`;
+
+  let totalAmountQuery = `select sum(milk_quantity) as requiredTotalMilkQuantity, sum(milk_amount) as requiredTotalMilkAmount from purchase where purchase_active_or_not=${1} and`;
+
+  if (customeridQuery) {
+    customeQuerry = customeQuerry + ` customer_id=${customeridQuery} and `;
+    totalAmountQuery =
+      totalAmountQuery + ` customer_id=${customeridQuery} and `;
+  }
+  if (nameQuery) {
+    customeQuerry = customeQuerry + ` customer_name="${nameQuery}" and`;
+    totalAmountQuery = totalAmountQuery + ` customer_name="${nameQuery}" and`;
+  }
+  if (fromDateQuery && toDateQuery) {
+    customeQuerry =
+      customeQuerry +
+      ` purchase_date>="${fromDateQuery}" and purchase_date<="${toDateQuery}" and`;
+
+    totalAmountQuery =
+      totalAmountQuery +
+      ` purchase_date>="${fromDateQuery}" and purchase_date<="${toDateQuery}" and`;
+  }
+  if (shiftQuery && shiftQuery != "Both") {
+    customeQuerry = customeQuerry + ` purchase_shift="${shiftQuery}" and`;
+    totalAmountQuery = totalAmountQuery + ` purchase_shift="${shiftQuery}" and`;
+  }
+
+  if (customeQuerry.length > 57) {
+    defaultQuerry = customeQuerry.slice(0, -4);
+  }
+
+  totalAmountQuery = totalAmountQuery.slice(0, -4);
+
+  const allpurchases = await queryAsync(defaultQuerry);
+
+  const totalQuantityAmountQueryResultofallpurchases = await queryAsync(
+    totalAmountQuery
+  );
+
+  res.send({
+    allpurchases,
+    totalQuantityAmountQueryResultofallpurchases,
+  });
+});
 
 const calculaeWeekWisePurchase = async (weekNumber, currentDate1) => {
   try {
@@ -300,7 +291,7 @@ const calculaeWeekWisePurchase = async (weekNumber, currentDate1) => {
   }
 };
 
-exports.weekWisePurchase = async (req, res, next) => {
+exports.weekWisePurchase = catchAsyncErrors(async (req, res, next) => {
   const todayDate = new Date().toJSON().slice(0, 10);
   const fromDateQuery = req.query.fromDate;
   const toDateQuery = req.query.toDate;
@@ -325,163 +316,147 @@ exports.weekWisePurchase = async (req, res, next) => {
   }
 
   res.send({ lastWeek1, lastWeek2, lastWeek3, lastWeek4 });
-};
+});
 
-exports.customerWisePurchase = async (req, res, next) => {
-  try {
-    const currentDate = new Date().toJSON().slice(0, 10);
-    const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(
-      currentDate,
-      1
+exports.customerWisePurchase = catchAsyncErrors(async (req, res, next) => {
+  const currentDate = new Date().toJSON().slice(0, 10);
+  const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(currentDate, 1);
+
+  let fromDate = lastWeekStartDate;
+  let toDate = lastWeekEndDate;
+  const fromDateQuery = req.query.fromDate;
+  const toDateQuery = req.query.toDate;
+
+  if (fromDateQuery && toDateQuery) {
+    fromDate = fromDateQuery;
+    toDate = toDateQuery;
+  }
+
+  let defaultQuerry = `select * from purchase where purchase_active_or_not=${1} and purchase_date>="${fromDate}" and purchase_date<="${toDate}" order by customer_name asc, purchase_date asc, purchase_shift desc`;
+
+  const customerwisepurchase = await queryAsync(defaultQuerry);
+  res.send(customerwisepurchase);
+});
+
+exports.singlePurchase = catchAsyncErrors(async (req, res, next) => {
+  const purchase_serial = req.query.purchase_serial;
+
+  let defaultQuerry = `select * from purchase where purchase_serial=${purchase_serial}`;
+
+  const singlepurchase = await queryAsync(defaultQuerry);
+  res.send(singlepurchase);
+});
+
+exports.updatePurchase = catchAsyncErrors(async (req, res, next) => {
+  const purchase_serial = req.query.purchase_serial;
+  const purchase_date = req.body.purchase_date;
+  const customer_id = req.body.customer_id;
+  const customer_name = req.body.customer_name;
+  const purchase_shift = req.body.purchase_shift;
+  const milk_type = req.body.milk_type;
+  const milk_quantity = req.body.milk_quantity;
+  const milk_fat = req.body.milk_fat;
+  const milk_clr = req.body.milk_clr;
+  let milk_rate = req.body.milk_rate;
+  let milk_amount = req.body.milk_amount;
+
+  const getLockedDateQueryResult = await handleLockedDate();
+
+  let got_locked_date = getLockedDateQueryResult[0].locked_date;
+  let lock_status = getLockedDateQueryResult[0].lock_status;
+
+  const new_purchase_date = new Date(purchase_date);
+
+  if (lock_status === 1 && new_purchase_date <= got_locked_date) {
+    return next(
+      new ErrorHandler(
+        `Not allowd below date ${purchase_date} first unlock it!`,
+        401
+      )
     );
-
-    let fromDate = lastWeekStartDate;
-    let toDate = lastWeekEndDate;
-    const fromDateQuery = req.query.fromDate;
-    const toDateQuery = req.query.toDate;
-
-    if (fromDateQuery && toDateQuery) {
-      fromDate = fromDateQuery;
-      toDate = toDateQuery;
-    }
-
-    let defaultQuerry = `select * from purchase where purchase_active_or_not=${1} and purchase_date>="${fromDate}" and purchase_date<="${toDate}" order by customer_name asc, purchase_date asc, purchase_shift desc`;
-
-    const customerwisepurchase = await queryAsync(defaultQuerry);
-    res.send(customerwisepurchase);
-  } catch (error) {
-    return next(new ErrorHandler(error.sqlMessage, 500));
   }
-};
 
-exports.singlePurchase = async (req, res, next) => {
-  try {
-    const purchase_serial = req.query.purchase_serial;
+  const { checked_milk_rate, checked_milk_amount } = await handleRateAndAmount(
+    milk_quantity,
+    milk_fat,
+    milk_clr
+  );
 
-    let defaultQuerry = `select * from purchase where purchase_serial=${purchase_serial}`;
+  milk_rate = checked_milk_rate;
+  milk_amount = checked_milk_amount;
 
-    const singlepurchase = await queryAsync(defaultQuerry);
-    res.send(singlepurchase);
-  } catch (error) {
-    return next(new ErrorHandler(err.sqlMessage, 500));
-  }
-};
+  const returnObject = {
+    purchase_serial,
+    purchase_date,
+    customer_id,
+    customer_name,
+    purchase_shift,
+    milk_type,
+    milk_quantity,
+    milk_fat,
+    milk_clr,
+    milk_rate,
+    milk_amount,
+  };
 
-exports.updatePurchase = async (req, res, next) => {
-  try {
-    const purchase_serial = req.query.purchase_serial;
-    const purchase_date = req.body.purchase_date;
-    const customer_id = req.body.customer_id;
-    const customer_name = req.body.customer_name;
-    const purchase_shift = req.body.purchase_shift;
-    const milk_type = req.body.milk_type;
-    const milk_quantity = req.body.milk_quantity;
-    const milk_fat = req.body.milk_fat;
-    const milk_clr = req.body.milk_clr;
-    let milk_rate = req.body.milk_rate;
-    let milk_amount = req.body.milk_amount;
+  let defaultQuerry = `update purchase set purchase_date = "${purchase_date}",customer_id = ${customer_id} , customer_name= "${customer_name}", purchase_shift="${purchase_shift}", milk_type="${milk_type}", milk_quantity=${milk_quantity}, milk_fat=${milk_fat}, milk_clr=${milk_clr}, milk_rate=${milk_rate}, milk_amount=${milk_amount}  WHERE purchase_serial = ${purchase_serial} `;
+  let fetchUpdatedEntryQuery = `select * from purchase where purchase_serial = ${purchase_serial}`;
 
-    const getLockedDateQueryResult = await handleLockedDate();
+  const updatepurchase = await queryAsync(defaultQuerry);
 
-    let got_locked_date = getLockedDateQueryResult[0].locked_date;
-    let lock_status = getLockedDateQueryResult[0].lock_status;
+  const fetchUpdatedEntryQueryResult = await queryAsync(fetchUpdatedEntryQuery);
 
-    const new_purchase_date = new Date(purchase_date);
+  res.send({
+    updatepurchase,
+    returnObject,
+    fetchUpdatedEntryQueryResult,
+  });
+});
 
-    if (lock_status === 1 && new_purchase_date <= got_locked_date) {
-      return next(
-        new ErrorHandler(
-          `Not allowd below date ${purchase_date} first unlock it!`,
-          401
-        )
-      );
-    }
+exports.deletePurchase = catchAsyncErrors(async (req, res, next) => {
+  let purchase_serial = req.query.purchase_serial;
+  let purchase_date = req.query.purchase_date;
 
-    const { checked_milk_rate, checked_milk_amount } =
-      await handleRateAndAmount(milk_quantity, milk_fat, milk_clr);
+  const getLockedDateQueryResult = await handleLockedDate();
 
-    milk_rate = checked_milk_rate;
-    milk_amount = checked_milk_amount;
+  let got_locked_date = getLockedDateQueryResult[0].locked_date;
+  let lock_status = getLockedDateQueryResult[0].lock_status;
 
-    const returnObject = {
-      purchase_serial,
-      purchase_date,
-      customer_id,
-      customer_name,
-      purchase_shift,
-      milk_type,
-      milk_quantity,
-      milk_fat,
-      milk_clr,
-      milk_rate,
-      milk_amount,
-    };
+  const new_purchase_date = new Date(purchase_date);
 
-    let defaultQuerry = `update purchase set purchase_date = "${purchase_date}",customer_id = ${customer_id} , customer_name= "${customer_name}", purchase_shift="${purchase_shift}", milk_type="${milk_type}", milk_quantity=${milk_quantity}, milk_fat=${milk_fat}, milk_clr=${milk_clr}, milk_rate=${milk_rate}, milk_amount=${milk_amount}  WHERE purchase_serial = ${purchase_serial} `;
-    let fetchUpdatedEntryQuery = `select * from purchase where purchase_serial = ${purchase_serial}`;
-
-    const updatepurchase = await queryAsync(defaultQuerry);
-
-    const fetchUpdatedEntryQueryResult = await queryAsync(
-      fetchUpdatedEntryQuery
+  if (lock_status === 1 && new_purchase_date <= got_locked_date) {
+    return next(
+      new ErrorHandler(
+        `Not allowd below date ${purchase_date} first unlock it!`,
+        401
+      )
     );
-
-    res.send({
-      updatepurchase,
-      returnObject,
-      fetchUpdatedEntryQueryResult,
-    });
-  } catch (error) {
-    return next(new ErrorHandler(error.sqlMessage, 500));
   }
-};
 
-exports.deletePurchase = async (req, res, next) => {
-  try {
-    let purchase_serial = req.query.purchase_serial;
-    let purchase_date = req.query.purchase_date;
+  let defaultQuerry = `delete from purchase where purchase_serial=${purchase_serial}`;
 
-    const getLockedDateQueryResult = await handleLockedDate();
+  const deletepurchase = await queryAsync(defaultQuerry);
 
-    let got_locked_date = getLockedDateQueryResult[0].locked_date;
-    let lock_status = getLockedDateQueryResult[0].lock_status;
-
-    const new_purchase_date = new Date(purchase_date);
-
-    if (lock_status === 1 && new_purchase_date <= got_locked_date) {
-      return next(
-        new ErrorHandler(
-          `Not allowd below date ${purchase_date} first unlock it!`,
-          401
-        )
-      );
-    }
-
-    let defaultQuerry = `delete from purchase where purchase_serial=${purchase_serial}`;
-
-    const deletepurchase = await queryAsync(defaultQuerry);
-
-    res.send(deletepurchase);
-  } catch (error) {
-    return next(new ErrorHandler(err.sqlMessage, 500));
-  }
-};
+  res.send(deletepurchase);
+});
 
 const performOutlierDetectionForPython = () => {
-  const { exec } = require("child_process");
+  try {
+    const { exec } = require("child_process");
 
-  const pythonScriptPath =
-    "D:\\YouTube\\SelfProject\\bharatmilkselfv2(plant)\\backend\\controllers\\outlier_detection.py";
+    const pythonScriptPath =
+      "D:\\YouTube\\SelfProject\\bharatmilkselfv2(plant)\\backend\\controllers\\outlier_detection.py";
 
-  exec(`python ${pythonScriptPath}`, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Python script execution error: ${error}`);
-    } else {
-      console.log(`Python script executed successfully.`);
-      console.log(`stdout: ${stdout}`);
-      // console.error(`stderr: ${stderr}`);
-    }
-  });
+    exec(`python ${pythonScriptPath}`, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Python script execution error: ${error}`);
+      } else {
+        console.log(`Python script executed successfully.`);
+        console.log(`stdout: ${stdout}`);
+        // console.error(`stderr: ${stderr}`);
+      }
+    });
+  } catch (error) {}
 };
 
 const performOutlierDetection = (data) => {
@@ -538,8 +513,8 @@ const performOutlierDetection = (data) => {
   return outliers;
 };
 
-exports.customerWisePurchaseOutliers = async (req, res, next) => {
-  try {
+exports.customerWisePurchaseOutliers = catchAsyncErrors(
+  async (req, res, next) => {
     const currentDate = new Date().toJSON().slice(0, 10);
     const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(
       currentDate,
@@ -579,7 +554,5 @@ exports.customerWisePurchaseOutliers = async (req, res, next) => {
     const result = await queryAsync(defaultQuerry);
 
     res.send(result);
-  } catch (error) {
-    return next(new ErrorHandler(err.sqlMessage, 500));
   }
-};
+);

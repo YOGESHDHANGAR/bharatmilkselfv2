@@ -1,32 +1,25 @@
 const con = require("../databases/database");
+const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const ErrorHandler = require("../utils/errorhander");
 
 const util = require("util");
 
 const queryAsync = util.promisify(con.query).bind(con);
 
-exports.getFatRate = async (req, res, next) => {
-  try {
-    let defaultQuerry = `select * from fatratetable where fat_serial=1`;
+exports.getFatRate = catchAsyncErrors(async (req, res, next) => {
+  let defaultQuerry = `select * from fatratetable where fat_serial=1`;
 
-    const getfatrate = await queryAsync(defaultQuerry);
+  const getfatrate = await queryAsync(defaultQuerry);
 
-    res.send(getfatrate);
-  } catch (error) {
-    return next(new ErrorHandler(err.sqlMessage, 500));
-  }
-};
+  res.send(getfatrate);
+});
 
-exports.updateFatRate = async (req, res, next) => {
-  try {
-    let defaultQuerry = `UPDATE fatratetable SET fat_rate = "${
-      req.body.fat_rate
-    }" WHERE fat_serial = ${1} `;
+exports.updateFatRate = catchAsyncErrors(async (req, res, next) => {
+  let defaultQuerry = `update fatratetable set fat_rate = "${
+    req.body.fat_rate
+  }" where fat_serial = ${1} `;
 
-    const updatefatrate = await queryAsync(defaultQuerry);
+  const updatefatrate = await queryAsync(defaultQuerry);
 
-    res.send(updatefatrate);
-  } catch (error) {
-    return next(new ErrorHandler(err.sqlMessage, 500));
-  }
-};
+  res.send(updatefatrate);
+});

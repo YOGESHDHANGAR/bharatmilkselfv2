@@ -22,7 +22,6 @@ function App() {
 
   useEffect(() => {
     if (customdataselectorLoading === false) {
-      console.log("customdataselectorhome", customdataselector);
       window.location.reload();
     }
   }, [customdataselectorLoading]);

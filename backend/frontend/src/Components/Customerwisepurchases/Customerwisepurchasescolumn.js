@@ -30,8 +30,6 @@ const Customerwisepurchasescolumn = (props) => {
 
   const handleKeyDownFromChild = (e) => {
     if (e.key === "Enter") {
-      console.log("e", e);
-
       props.handleToggleFromParent(e);
     }
   };

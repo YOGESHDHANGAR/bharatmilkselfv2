@@ -77,11 +77,11 @@ const Customerwisepurchases = React.memo(() => {
 
   const [storedArrayInParent, setStoredArrayInParent] = useState([]);
 
-  const handleToggleFromParent = (customer_id) => {
-    const containsOrNot = storedArrayInParent.includes(customer_id);
+  const handleToggleFromParent = (purchase_serial) => {
+    const containsOrNot = storedArrayInParent.includes(purchase_serial);
     const updatedArray = containsOrNot
-      ? storedArrayInParent.filter((item) => item !== customer_id)
-      : [...storedArrayInParent, customer_id];
+      ? storedArrayInParent.filter((item) => item !== purchase_serial)
+      : [...storedArrayInParent, purchase_serial];
 
     setStoredArrayInParent(updatedArray);
   };

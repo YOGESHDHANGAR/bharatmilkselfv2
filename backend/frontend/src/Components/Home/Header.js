@@ -40,6 +40,10 @@ const Header = () => {
       <div className="home_header_amount_lable">
         <h3>Amount</h3>
       </div>
+      <div className="home_header_delete_button">
+        <h3>Delete</h3>
+      </div>
+      <div className="home_header_checkbox"></div>
       <div className="home_header_colorTikcker"></div>
       <div className="home_header_removeTikcker"></div>
     </div>

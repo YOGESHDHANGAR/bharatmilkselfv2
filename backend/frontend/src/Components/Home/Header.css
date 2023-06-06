@@ -6,53 +6,60 @@
   position: sticky;
   top: 0;
   padding-left: 10px;
-  padding-right: 30px;
 }
 
 .home_header_count_lable {
-  flex: 0.4;
+  flex: 0.15;
 }
 
 .home_header_serial_lable {
-  flex: 0.6;
+  flex: 0.3;
 }
 
 .home_header_date_lable {
-  flex: 0.6;
+  flex: 0.35;
 }
 
 .home_header_id_lable {
-  flex: 0.4;
+  flex: 0.2;
 }
 
 .home_header_name_lable {
-  flex: 1.8;
+  flex: 0.8;
 }
 
 .home_header_shift_lable {
-  flex: 0.6;
+  flex: 0.35;
 }
 
 .home_header_type_lable {
-  flex: 0.6;
+  flex: 0.35;
 }
 
 .home_header_quantity_lable {
-  flex: 0.6;
+  flex: 0.2;
 }
 
 .home_header_fat_lable {
-  flex: 0.6;
+  flex: 0.2;
 }
 
 .home_header_rate_lable {
-  flex: 0.6;
+  flex: 0.2;
 }
 
 .home_header_clr_lable {
-  flex: 0.6;
+  flex: 0.2;
 }
 
 .home_header_amount_lable {
-  flex: 0.6;
+  flex: 0.3;
+}
+
+.home_header_delete_button {
+  flex: 0.05;
+}
+
+.home_header_checkbox {
+  flex: 0.1;
 }

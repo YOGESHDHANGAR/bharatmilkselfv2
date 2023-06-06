@@ -1,7 +1,23 @@
 import React from "react";
 import "./Column.css";
+import { useDispatch } from "react-redux";
+import { deletePurchaseAction } from "../../Redux/actions/purchaseActions";
 
 const Column = React.memo((props) => {
+  const dispatch = useDispatch();
+  const handleDeleteEntry = () => {
+    let result = window.confirm("Are you sure wants to delete?");
+    if (result) {
+      props.handleDeleteEntryParent(props.purchase_serial);
+      dispatch(
+        deletePurchaseAction(
+          props.purchase_serial,
+          props.purchase_date.slice(0, 10)
+        )
+      );
+    }
+  };
+
   const backgroundColor = props.markedEntryOrNot
     ? "#e490e8"
     : props.count % 2 === 0
@@ -52,6 +68,13 @@ const Column = React.memo((props) => {
       <div className="home_column_amount_lable">
         <h3>₹ {props.milk_amount.toFixed(2)}</h3>
       </div>
+      <input
+        className="home_column_delete_button"
+        tabIndex={-1}
+        type="button"
+        onClick={handleDeleteEntry}
+        value="Del"
+      />
       <input
         type="checkbox"
         onChange={props.handleToggleFromParent}

@@ -8,54 +8,66 @@
 }
 
 .home_column_count_lable {
-  flex: 0.4;
+  flex: 0.15;
 }
 
 .home_column_serial_lable {
-  flex: 0.6;
+  flex: 0.3;
 }
 
 .home_column_date_lable {
-  flex: 0.6;
+  flex: 0.35;
 }
 
 .home_column_id_lable {
-  flex: 0.4;
+  flex: 0.2;
 }
 
 .home_column_name_lable {
-  flex: 1.8;
+  flex: 0.8;
 }
 
 .home_column_shift_lable {
-  flex: 0.6;
+  flex: 0.35;
 }
 
 .home_column_type_lable {
-  flex: 0.6;
+  flex: 0.35;
 }
 
 .home_column_quantity_lable {
-  flex: 0.6;
+  flex: 0.2;
 }
 
 .home_column_fat_lable {
-  flex: 0.6;
+  flex: 0.2;
 }
 
 .home_column_rate_lable {
-  flex: 0.6;
+  flex: 0.2;
 }
 
 .home_column_clr_lable {
-  flex: 0.6;
+  flex: 0.2;
 }
 
 .home_column_amount_lable {
-  flex: 0.6;
+  flex: 0.3;
+}
+
+.home_column_delete_button {
+  flex: 0.05;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.8vmax;
+}
+
+.home_column_delete_button:hover {
+  background-color: rgb(114, 0, 0);
 }
 
 .home_column_checkbox {
-  margin-right: 20px;
-  transform: scale(1.5);
+  flex: 0.15;
 }

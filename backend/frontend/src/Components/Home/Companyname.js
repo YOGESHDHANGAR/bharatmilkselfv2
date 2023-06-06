@@ -99,15 +99,6 @@ const Companyname = () => {
         >
           Home
         </Link>
-        <Link
-          tabIndex={-1}
-          className={`customerwise_navlink ${
-            location.pathname === "/customerwisepurchases" ? "active" : ""
-          }`}
-          to="/customerwisepurchases"
-        >
-          Customer_Wise
-        </Link>
 
         <Link
           tabIndex={-1}
@@ -118,6 +109,17 @@ const Companyname = () => {
         >
           Purchase_Entry
         </Link>
+
+        <Link
+          tabIndex={-1}
+          className={`customerwise_navlink ${
+            location.pathname === "/customerwisepurchases" ? "active" : ""
+          }`}
+          to="/customerwisepurchases"
+        >
+          Customer_Wise
+        </Link>
+
         <Link
           tabIndex={-1}
           className={`weekpayment_navlink ${

@@ -15,6 +15,12 @@ import Header from "./Header";
 import Box from "@mui/material/Box";
 import MetaData from "../MetaData/MetaData";
 
+const commonStyles = {
+  bgcolor: "black",
+  borderColor: "black",
+  width: "100vw",
+};
+
 const Home = () => {
   const showErrorToast = (message) => {
     toast.error(message, {
@@ -33,13 +39,22 @@ const Home = () => {
     (state) => state.allcustomers
   );
 
-  const commonStyles = {
-    bgcolor: "black",
-    borderColor: "black",
-    width: "100vw",
-  };
+  const {
+    deletepurchase,
+    error: deletepurchaseError,
+    loading: deletepurchaseLoading,
+  } = useSelector((state) => state.deletepurchase);
 
   const [storedArrayInParent, setStoredArrayInParent] = useState([]);
+  const [allpurchasesState, setallpurchasesState] = useState(allpurchases);
+
+  const handleDeleteEntryParent = (purchase_serial) => {
+    setallpurchasesState((prevComponents) =>
+      prevComponents.filter(
+        (component) => component.purchase_serial !== purchase_serial
+      )
+    );
+  };
 
   const handleToggleFromParent = (purchase_serial) => {
     const containsOrNot = storedArrayInParent.includes(purchase_serial);
@@ -49,6 +64,10 @@ const Home = () => {
 
     setStoredArrayInParent(updatedArray);
   };
+
+  useEffect(() => {
+    setallpurchasesState(allpurchases);
+  }, [allpurchases]);
 
   useEffect(() => {
     const storedArray = localStorage.getItem("home_markedEntriesArray");
@@ -78,7 +97,11 @@ const Home = () => {
       showErrorToast(allcustomersError);
       dispatch(clearErrors());
     }
-  }, [allcustomersError, allpurchasesError]);
+    if (deletepurchaseError) {
+      showErrorToast(deletepurchaseError);
+      dispatch(clearErrors());
+    }
+  }, [allcustomersError, deletepurchaseError, allpurchasesError]);
 
   return (
     <div>
@@ -87,12 +110,12 @@ const Home = () => {
       <Header />
       {allpurchasesLoadig === true ? (
         <Loading />
-      ) : allpurchases === undefined || allpurchases.length === 0 ? (
+      ) : allpurchasesState === undefined || allpurchasesState.length === 0 ? (
         <div className="no_result_found">
           <h1>No Result Found!</h1>
         </div>
       ) : (
-        allpurchases.map((elem, index) => {
+        allpurchasesState.map((elem, index) => {
           return (
             <Column
               key={index}
@@ -108,6 +131,7 @@ const Home = () => {
               milk_rate={elem.milk_rate}
               milk_clr={elem.milk_clr}
               milk_amount={elem.milk_amount}
+              handleDeleteEntryParent={handleDeleteEntryParent}
               handleToggleFromParent={() => {
                 handleToggleFromParent(elem.purchase_serial);
               }}
@@ -119,7 +143,7 @@ const Home = () => {
         })
       )}
       <>
-        {allpurchasesLoadig === false && allpurchases.length !== 0 && (
+        {allpurchasesLoadig === false && allpurchasesState.length !== 0 && (
           <div>
             <Box sx={{ ...commonStyles, border: 0.3 }} />
             <div className="home_totalling_Field">

@@ -28,11 +28,19 @@ const Customerwisepurchasescolumn = (props) => {
     props.handleUpdateEntryParent(props.purchase_serial);
   };
 
+  const handleKeyDownFromChild = (e) => {
+    if (e.key === "Enter") {
+      console.log("e", e);
+
+      props.handleToggleFromParent(e);
+    }
+  };
+
   return (
     <div
       style={
         props.needUpdate === true
-          ? { backgroundColor: "rgb(237, 210, 210)" }
+          ? { backgroundColor: "#F54231" }
           : { backgroundColor }
       }
     >
@@ -105,6 +113,7 @@ const Customerwisepurchasescolumn = (props) => {
             type="checkbox"
             onChange={props.handleToggleFromParent}
             checked={props.markedEntryOrNot}
+            onKeyDown={handleKeyDownFromChild}
           />
         </div>
       </div>

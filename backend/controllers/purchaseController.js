@@ -475,7 +475,7 @@ const performOutlierDetection = (data) => {
   );
 
   // Set a threshold to determine outliers (adjust as needed)
-  const threshold = 0.001;
+  const threshold = 2.3;
 
   // Filter the data to include outliers only
   const outliers = data.filter((row, index) => {
@@ -530,6 +530,12 @@ exports.customerWisePurchaseOutliers = catchAsyncErrors(
       fromDate = fromDateQuery;
       toDate = toDateQuery;
     }
+
+    const queryForEmptyOutliersTable = `delete from outliers_table`;
+
+    const queryForEmptyOutliersTableResult = await queryAsync(
+      queryForEmptyOutliersTable
+    );
 
     const queryForFindingOutliers = `select * from purchase where purchase_active_or_not=${1} order by customer_id, purchase_shift`;
     // const queryForFindingOutliers = `select * from purchase_hub where purchase_active_or_not=${1} and purchase_date>= "${fromDate}" and purchase_date<="${toDate}" order by customer_id, purchase_shift`;

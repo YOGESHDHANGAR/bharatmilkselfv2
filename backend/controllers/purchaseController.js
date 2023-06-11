@@ -178,7 +178,7 @@ exports.getAllPurchases = catchAsyncErrors(async (req, res, next) => {
 
   let customeQuerry = `select * from purchase where purchase_active_or_not=${1} and`;
 
-  let totalAmountQuery = `select sum(milk_quantity) as requiredTotalMilkQuantity, sum(milk_amount) as requiredTotalMilkAmount from purchase where purchase_active_or_not=${1} and`;
+  let totalAmountQuery = `select round(sum(milk_quantity),1) as requiredTotalMilkQuantity, round(sum(milk_amount),2) as requiredTotalMilkAmount from purchase where purchase_active_or_not=${1} and`;
 
   if (customeridQuery) {
     customeQuerry = customeQuerry + ` customer_id=${customeridQuery} and `;

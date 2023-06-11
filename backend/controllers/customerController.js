@@ -86,13 +86,18 @@ exports.customerActiceOrInactive = catchAsyncErrors(async (req, res, next) => {
   const new_customer_active_or_not = req.query.new_customer_active_or_not;
   let defaultQuerry = `update customer set customer_active_or_not= "${new_customer_active_or_not}" where customer_id = ${customer_id} `;
 
-  let updatePurchaseActiveOrInactiveQuery = `update purchase set purchase_active_or_not= "${new_customer_active_or_not}" where customer_id = ${customer_id}`;
+  let updatePurchaseActiveOrInactiveInPurchaseQuery = `update purchase set purchase_active_or_not= "${new_customer_active_or_not}" where customer_id = ${customer_id}`;
+
+  let updatePurchaseActiveOrInactiveInPurhase_hubQuery = `update purchase_hub set purchase_active_or_not= "${new_customer_active_or_not}" where customer_id = ${customer_id}`;
 
   const customerActiceOrInactiveResult = await queryAsync(defaultQuerry);
 
   const updatePurchaseActiveOrInactiveResut = await queryAsync(
-    updatePurchaseActiveOrInactiveQuery
+    updatePurchaseActiveOrInactiveInPurchaseQuery
   );
+
+  const updatePurchaseActiveOrInactiveInPurhase_hubQueryResut =
+    await queryAsync(updatePurchaseActiveOrInactiveInPurhase_hubQuery);
 
   res.send(customerActiceOrInactiveResult);
 });

@@ -28,6 +28,7 @@ const Companyname = () => {
   const handleCustomDataSelector = (e) => {
     setCurrentlyCustomDataInUse(e.target.value);
     dispatch(customDataSelectorAction(e.target.value));
+    // dispatch(customDataSelectorAction("2019-2024"));
   };
 
   useEffect(() => {

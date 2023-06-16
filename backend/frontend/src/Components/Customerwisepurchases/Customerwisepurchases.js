@@ -150,7 +150,7 @@ const Customerwisepurchases = React.memo(() => {
 
   useEffect(() => {
     dispatch(customerWisePurchaseAction(1));
-    dispatch(customerWisePurchaseOutliersAction(1));
+    // dispatch(customerWisePurchaseOutliersAction(1));
   }, [dispatch]);
 
   useEffect(() => {

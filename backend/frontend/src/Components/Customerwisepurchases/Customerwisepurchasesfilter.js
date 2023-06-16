@@ -47,7 +47,7 @@ const Customerwisepurchasesfilter = () => {
       alert("Please select valid date");
     }
     dispatch(customerWisePurchaseAction(1, fromDate, toDate));
-    dispatch(customerWisePurchaseOutliersAction(1, fromDate, toDate));
+    // dispatch(customerWisePurchaseOutliersAction(1, fromDate, toDate));
   };
 
   const handleClearLocalStorage = () => {

@@ -532,50 +532,39 @@ const performOutlierDetection = (data) => {
 
 exports.customerWisePurchaseOutliers = catchAsyncErrors(
   async (req, res, next) => {
-    const currentDate = new Date().toJSON().slice(0, 10);
-    const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(
-      currentDate,
-      1
-    );
-
-    let fromDate = lastWeekStartDate;
-    let toDate = lastWeekEndDate;
-    const fromDateQuery = req.query.fromDate;
-    const toDateQuery = req.query.toDate;
-
-    if (fromDateQuery && toDateQuery) {
-      fromDate = fromDateQuery;
-      toDate = toDateQuery;
-    }
-
-    const queryForEmptyOutliersTable = `delete from outliers_table`;
-
-    const queryForEmptyOutliersTableResult = await queryAsync(
-      queryForEmptyOutliersTable
-    );
-
-    const queryForFindingOutliers = `select * from purchase where purchase_active_or_not=${1} order by customer_id, purchase_shift`;
-    // const queryForFindingOutliers = `select * from purchase_hub where purchase_active_or_not=${1} and purchase_date>= "${fromDate}" and purchase_date<="${toDate}" order by customer_id, purchase_shift`;
-
-    const queryForFindingOutliersResult = await queryAsync(
-      queryForFindingOutliers
-    );
-    const morningData = queryForFindingOutliersResult.filter(
-      (row) => row.purchase_shift === "Morning"
-    );
-    const eveningData = queryForFindingOutliersResult.filter(
-      (row) => row.purchase_shift === "Evening"
-    );
-
-    performOutlierDetection(morningData);
-    performOutlierDetection(eveningData);
-
-    // performOutlierDetectionForPython();
-
-    const defaultQuerry = `select * from outliers_table where purchase_date>= "${fromDate}" and purchase_date<="${toDate}"`;
-
-    const result = await queryAsync(defaultQuerry);
-
-    res.send(result);
+    // const currentDate = new Date().toJSON().slice(0, 10);
+    // const { lastWeekStartDate, lastWeekEndDate } = lastWeekDates(
+    //   currentDate,
+    //   1
+    // );
+    // let fromDate = lastWeekStartDate;
+    // let toDate = lastWeekEndDate;
+    // const fromDateQuery = req.query.fromDate;
+    // const toDateQuery = req.query.toDate;
+    // if (fromDateQuery && toDateQuery) {
+    //   fromDate = fromDateQuery;
+    //   toDate = toDateQuery;
+    // }
+    // const queryForEmptyOutliersTable = `delete from outliers_table`;
+    // const queryForEmptyOutliersTableResult = await queryAsync(
+    //   queryForEmptyOutliersTable
+    // );
+    // const queryForFindingOutliers = `select * from purchase where purchase_active_or_not=${1} order by customer_id, purchase_shift`;
+    // // const queryForFindingOutliers = `select * from purchase_hub where purchase_active_or_not=${1} and purchase_date>= "${fromDate}" and purchase_date<="${toDate}" order by customer_id, purchase_shift`;
+    // const queryForFindingOutliersResult = await queryAsync(
+    //   queryForFindingOutliers
+    // );
+    // const morningData = queryForFindingOutliersResult.filter(
+    //   (row) => row.purchase_shift === "Morning"
+    // );
+    // const eveningData = queryForFindingOutliersResult.filter(
+    //   (row) => row.purchase_shift === "Evening"
+    // );
+    // performOutlierDetection(morningData);
+    // performOutlierDetection(eveningData);
+    // // performOutlierDetectionForPython();
+    // const defaultQuerry = `select * from outliers_table where purchase_date>= "${fromDate}" and purchase_date<="${toDate}"`;
+    // const result = await queryAsync(defaultQuerry);
+    // res.send(result);
   }
 );

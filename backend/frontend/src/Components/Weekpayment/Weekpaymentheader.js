@@ -20,6 +20,12 @@ const Header = () => {
         <div className="header_amount_lable">
           <h3>Amount</h3>
         </div>
+        <div className="header_particular_lable">
+          <h3>Particular</h3>
+        </div>
+        <div className="header_signature_lable">
+          <h3>Signature</h3>
+        </div>
       </div>
       <div className="header_part2">
         <div className="header_Last_Week_lable">

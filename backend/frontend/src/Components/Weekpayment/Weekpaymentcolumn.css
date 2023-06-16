@@ -31,8 +31,27 @@
 
 @media print {
   .weekpayment_column_container {
-    padding-right: 21%;
+    padding-left: 30px;
   }
+  .weekpayment_column_sno_lable {
+    flex: 0.05;
+  }
+
+  .weekpayment_column_id_lable {
+    flex: 0.05;
+  }
+  .weekpayment_column_name_lable {
+    flex: 0.3;
+  }
+
+  .weekpayment_column_quantity_lable {
+    flex: 0.1;
+  }
+
+  .weekpayment_column_amount_lable {
+    flex: 0.1;
+  }
+
   .weekpayment_column_checkbox {
     display: none;
   }

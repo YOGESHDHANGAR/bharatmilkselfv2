@@ -36,6 +36,14 @@
   flex: 0.1;
 }
 
+.header_particular_lable {
+  display: none;
+}
+
+.header_signature_lable {
+  display: none;
+}
+
 .header_Last_Week_lable {
   flex: 0.3;
 }
@@ -49,31 +57,44 @@
 }
 
 @media print {
+  .header_container {
+    padding-left: 30px;
+  }
   .header_part1 {
     display: flex;
-    width: 80%;
+    width: 100%;
   }
   .header_part2 {
     display: none;
   }
 
   .header_sno_lable {
-    flex: 0.09;
+    flex: 0.05;
   }
 
   .header_id_lable {
-    flex: 0.09;
+    flex: 0.05;
   }
 
   .header_name_lable {
-    flex: 0.5;
+    flex: 0.3;
   }
 
   .header_quantity_lable {
-    flex: 0.18;
+    flex: 0.1;
   }
 
   .header_amount_lable {
-    flex: 0.18;
+    flex: 0.15;
+  }
+
+  .header_particular_lable {
+    display: flex;
+    flex: 0.15;
+  }
+
+  .header_signature_lable {
+    display: flex;
+    flex: 0.15;
   }
 }

@@ -15,6 +15,8 @@ import {
 import { getAllCustomerAction } from "../../Redux/actions/customerActions";
 import { getFatRateAction } from "../../Redux/actions/fatRateActions";
 import MetaData from "../MetaData/MetaData";
+import Switch from "@mui/material/Switch";
+const label = { inputProps: { "aria-label": "Switch demo" } };
 
 const ModalRoot = ({ children }) => {
   return ReactDOM.createPortal(
@@ -102,6 +104,7 @@ const Purchaseentry = () => {
   const [milkAmount, setMilkAmount] = useState(0);
   const [successBlink, setSuccessBlink] = useState(false);
   const [returnObjectState, setReturnObjectState] = useState({});
+  const [allowDuplicate, setAllowDuplicate] = useState(false);
 
   const handleCloseModal = (e) => {
     setShowModal(false);
@@ -246,6 +249,7 @@ const Purchaseentry = () => {
     myForm.set("milk_clr", milkClr);
     myForm.set("milk_rate", milkRate);
     myForm.set("milk_amount", milkAmount);
+    myForm.set("allow_duplicate", allowDuplicate);
 
     if (purchaseDate > dateToday) {
       alert("Date is greater than todays date");
@@ -278,6 +282,7 @@ const Purchaseentry = () => {
     myForm.set("milk_clr", milkClr);
     myForm.set("milk_rate", milkRate);
     myForm.set("milk_amount", milkAmount);
+    myForm.set("allow_duplicate", allowDuplicate);
 
     dispatch(updatePurchaseAction(purchaseSerial, myForm));
     resetStates();
@@ -292,6 +297,10 @@ const Purchaseentry = () => {
     if (e.key === "Tab" || e.key === "Enter") {
       inputRef.current.focus();
     }
+  };
+
+  const handleSameCustomerDoubleEntry = (e) => {
+    setAllowDuplicate((prevState) => (prevState === true ? false : true));
   };
 
   useEffect(() => {
@@ -315,6 +324,7 @@ const Purchaseentry = () => {
       setSuccessBlink(true);
       setPurchaseSerial(Number(createpurchase.insertId) + 1);
       setReturnObjectState(createpurchaseReturnObject);
+      setAllowDuplicate(false);
     }
   }, [createpurchaseLoading, createpurchase]);
 
@@ -327,6 +337,7 @@ const Purchaseentry = () => {
       setSuccessBlink(true);
       setReturnObjectState(updatepurchaseReturnObject);
       setPurchaseSerial(getlatestpurchaseserial + 1);
+      setAllowDuplicate(false);
     }
   }, [updatepurchaseLoading, getlatestpurchaseserialLoading, updatepurchase]);
 
@@ -670,6 +681,14 @@ const Purchaseentry = () => {
           />
         </div>
       </form>
+      <div className="">
+        {/* <p>Allow Same Customer Duplicate Entry</p> */}
+        <Switch
+          onChange={handleSameCustomerDoubleEntry}
+          {...label}
+          checked={allowDuplicate}
+        />
+      </div>
 
       <div tabIndex={-1} aria-disabled={true} className="success_fail_check">
         {successBlink && <h1 className="success_check">✔ Successfull</h1>}

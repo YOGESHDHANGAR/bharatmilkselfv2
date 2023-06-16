@@ -20,20 +20,14 @@ const handleLockedDate = async () => {
 
 const handleCertainNumberOfEntriesOnDate = async (
   purchase_date,
-  purchase_shift
+  purchase_shift,
+  customer_id
 ) => {
   try {
-    let getEntryCountQuery = `select  count(*) as entryCount from purchase where purchase_date = "${purchase_date}" and purchase_shift="${purchase_shift}"`;
-    let getTotalCustomersCountQuery = `select count(*) as totalCustomers from customer where customer_active_or_not = 1`;
+    let getEntryCountQuery = `select  count(*) as entryCount from purchase where purchase_date = "${purchase_date}" and purchase_shift="${purchase_shift}" and customer_id=${customer_id}`;
     const getEntryCountQueryResult = await queryAsync(getEntryCountQuery);
-    const getTotalCustomersCountQueryResult = await queryAsync(
-      getTotalCustomersCountQuery
-    );
 
-    if (
-      getEntryCountQueryResult[0].entryCount >
-      getTotalCustomersCountQueryResult[0].totalCustomers + 3
-    ) {
+    if (getEntryCountQueryResult[0].entryCount >= 1) {
       return true;
     }
 
@@ -91,6 +85,7 @@ exports.createPurchase = catchAsyncErrors(async (req, res, next) => {
   const milk_clr = req.body.milk_clr;
   let milk_rate = req.body.milk_rate;
   let milk_amount = req.body.milk_amount;
+  const allow_duplicate = req.body.allow_duplicate;
 
   const { checked_milk_rate, checked_milk_amount } = await handleRateAndAmount(
     milk_quantity,
@@ -117,15 +112,20 @@ exports.createPurchase = catchAsyncErrors(async (req, res, next) => {
   milk_rate = checked_milk_rate;
   milk_amount = checked_milk_amount;
 
-  const k = await handleCertainNumberOfEntriesOnDate(
-    purchase_date,
-    purchase_shift
-  );
-
-  if (k === true) {
-    return next(
-      new ErrorHandler("Date aur Shift Ek Baar Register Se Check Krle!", 401)
+  if (allow_duplicate === "false") {
+    const k = await handleCertainNumberOfEntriesOnDate(
+      purchase_date,
+      purchase_shift,
+      customer_id
     );
+    if (k === true) {
+      return next(
+        new ErrorHandler(
+          `Customer:${customer_name}\nDate:${purchase_date}\nShift:${purchase_shift}\npar already entry ho rakhi h, agar customer do ya usse adhik baar dudh laya h to top left corner pr button ko active krdijiye!`,
+          401
+        )
+      );
+    }
   }
 
   let defaultQuerry = `insert into purchase(purchase_serial, purchase_date,customer_id ,customer_name, purchase_shift, milk_type, milk_quantity, milk_fat, milk_clr, milk_rate, milk_amount) values( ${purchase_serial},"${purchase_date}",${customer_id}, "${customer_name}", "${purchase_shift}", "${milk_type}", ${milk_quantity}, ${milk_fat}, ${milk_clr}, ${milk_rate}, ${milk_amount})`;
@@ -359,6 +359,7 @@ exports.updatePurchase = catchAsyncErrors(async (req, res, next) => {
   const milk_clr = req.body.milk_clr;
   let milk_rate = req.body.milk_rate;
   let milk_amount = req.body.milk_amount;
+  const allow_duplicate = req.body.allow_duplicate;
 
   const getLockedDateQueryResult = await handleLockedDate();
 
@@ -398,6 +399,22 @@ exports.updatePurchase = catchAsyncErrors(async (req, res, next) => {
     milk_rate,
     milk_amount,
   };
+
+  if (allow_duplicate === "false") {
+    const k = await handleCertainNumberOfEntriesOnDate(
+      purchase_date,
+      purchase_shift,
+      customer_id
+    );
+    if (k === true) {
+      return next(
+        new ErrorHandler(
+          `Customer:${customer_name}\nDate:${purchase_date}\nShift:${purchase_shift}\npar already entry ho rakhi h, agar customer do ya usse adhik baar dudh laya h to same customer double entry allow kre!`,
+          401
+        )
+      );
+    }
+  }
 
   let defaultQuerry = `update purchase set purchase_date = "${purchase_date}",customer_id = ${customer_id} , customer_name= "${customer_name}", purchase_shift="${purchase_shift}", milk_type="${milk_type}", milk_quantity=${milk_quantity}, milk_fat=${milk_fat}, milk_clr=${milk_clr}, milk_rate=${milk_rate}, milk_amount=${milk_amount}  WHERE purchase_serial = ${purchase_serial} `;
   let fetchUpdatedEntryQuery = `select * from purchase where purchase_serial = ${purchase_serial}`;

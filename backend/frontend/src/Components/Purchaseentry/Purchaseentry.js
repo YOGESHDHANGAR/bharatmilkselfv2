@@ -282,7 +282,6 @@ const Purchaseentry = () => {
     myForm.set("milk_clr", milkClr);
     myForm.set("milk_rate", milkRate);
     myForm.set("milk_amount", milkAmount);
-    myForm.set("allow_duplicate", allowDuplicate);
 
     dispatch(updatePurchaseAction(purchaseSerial, myForm));
     resetStates();
@@ -337,7 +336,6 @@ const Purchaseentry = () => {
       setSuccessBlink(true);
       setReturnObjectState(updatepurchaseReturnObject);
       setPurchaseSerial(getlatestpurchaseserial + 1);
-      setAllowDuplicate(false);
     }
   }, [updatepurchaseLoading, getlatestpurchaseserialLoading, updatepurchase]);
 

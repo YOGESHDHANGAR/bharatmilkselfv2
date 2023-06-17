@@ -400,22 +400,6 @@ exports.updatePurchase = catchAsyncErrors(async (req, res, next) => {
     milk_amount,
   };
 
-  if (allow_duplicate === "false") {
-    const k = await handleCertainNumberOfEntriesOnDate(
-      purchase_date,
-      purchase_shift,
-      customer_id
-    );
-    if (k === true) {
-      return next(
-        new ErrorHandler(
-          `Customer:${customer_name}\nDate:${purchase_date}\nShift:${purchase_shift}\npar already entry ho rakhi h, agar customer do ya usse adhik baar dudh laya h to same customer double entry allow kre!`,
-          401
-        )
-      );
-    }
-  }
-
   let defaultQuerry = `update purchase set purchase_date = "${purchase_date}",customer_id = ${customer_id} , customer_name= "${customer_name}", purchase_shift="${purchase_shift}", milk_type="${milk_type}", milk_quantity=${milk_quantity}, milk_fat=${milk_fat}, milk_clr=${milk_clr}, milk_rate=${milk_rate}, milk_amount=${milk_amount}  WHERE purchase_serial = ${purchase_serial} `;
   let fetchUpdatedEntryQuery = `select * from purchase where purchase_serial = ${purchase_serial}`;
 

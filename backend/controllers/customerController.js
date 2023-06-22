@@ -11,11 +11,21 @@ exports.createCustomer = catchAsyncErrors(async (req, res, next) => {
   const trimmedName = customer_name.trim();
   const formattedName = trimmedName.replace(/\s+/g, " ");
 
-  if (formattedName.length < 1) {
+  // Capitalize the first letter of each word and convert the rest to lowercase
+  const capitalizedWords = formattedName
+    .toLowerCase()
+    .split(" ")
+    .map((word) => {
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    });
+
+  const finalName = capitalizedWords.join(" ");
+
+  if (finalName.length < 1) {
     return next(new ErrorHandler("Please Select Valid Customer Name", 500));
   }
 
-  let defaultQuerry = `insert into customer(customer_name) values("${formattedName}")`;
+  let defaultQuerry = `insert into customer(customer_name) values("${finalName}")`;
 
   const createcustomer = await queryAsync(defaultQuerry);
 

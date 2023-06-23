@@ -58,6 +58,7 @@ export const getAllCustomerAction = (unfiltered) => async (dispatch) => {
     if (unfiltered) {
       link = link + `unfiltered=${unfiltered}&`;
     }
+
     link = link.slice(0, -1);
 
     const { data } = await axios.get(link);

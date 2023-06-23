@@ -26,29 +26,37 @@ const Customerentry = () => {
       autoClose: 5000,
     });
   };
+
   const dispatch = useDispatch();
+
   const {
     allcustomers,
     loading,
     error: allcustomersError,
   } = useSelector((state) => state.allcustomers);
+
   const { singlecustomer, error: singlecustomerError } = useSelector(
     (state) => state.singlecustomer
   );
+
   const { createcustomer, error: createcustomerError } = useSelector(
     (state) => state.createcustomer
   );
+
   const { updatecustomer, error: updatecustomerError } = useSelector(
     (state) => state.updatecustomer
   );
+
   const { deletecustomer, error: deletecustomerError } = useSelector(
     (state) => state.deletecustomer
   );
+
   const {
     getfatrate,
     error: getfatrateError,
     loading: getfatrateLoading,
   } = useSelector((state) => state.getfatrate);
+
   const { updatefatrate, error: updatefatrateError } = useSelector(
     (state) => state.updatefatrate
   );
